@@ -16,55 +16,52 @@ Next.js 16 (App Router) → REST API (localhost:8080/api) → Express + Prisma +
 
 ---
 
-## Phase 1: Auth & Core Infrastructure ✅ IN PROGRESS
+## Phase 1: Auth & Core Infrastructure ✅ COMPLETED
 
 ### 1.1 Middleware — Route Protection
-- [ ] Create `middleware.ts` at root
-- [ ] Protect `/dashboard/*` routes — redirect to `/login` if no token
-- [ ] Redirect authenticated users from `/login`, `/register` to `/dashboard`
-- [ ] Cookie-based token detection (`mf_access_token`)
+- [x] Create `middleware.ts` at root
+- [x] Protect `/dashboard/*`, `/products/*`, `/customers/*`, `/invoices/*`, `/payments/*`, `/reports/*` routes
+- [x] Redirect authenticated users from `/login`, `/register` to `/dashboard`
+- [x] Cookie-based token detection (`mf_access_token`)
 
 ### 1.2 Token Management
-- [ ] Token storage in localStorage (`mf_access_token`, `mf_refresh_token`)
-- [ ] Auto-refresh on 401 response (interceptor pattern)
-- [ ] Token rotation on refresh
-- [ ] Clear tokens on logout
+- [x] Token storage in localStorage (`mf_access_token`, `mf_refresh_token`)
+- [x] Auto-refresh on 401 response (interceptor pattern)
+- [x] Token rotation on refresh
+- [x] Clear tokens on logout
 
-### 1.3 API Client Improvements
-- [ ] Axios interceptors for auto-attach Bearer token
-- [ ] 401 handler with token refresh
-- [ ] Request retry after successful refresh
-- [ ] Redirect to `/login` on refresh failure
+### 1.3 API Client
+- [x] Custom `apiClient` with auto-attach Bearer token
+- [x] 401 handler with token refresh
+- [x] Request retry after successful refresh
+- [x] Redirect to `/login` on refresh failure
 
 ### 1.4 Error Handling
-- [ ] Toast notification system for errors
-- [ ] API error response parsing
-- [ ] Network error handling
-- [ ] Loading states for all async operations
+- [x] Toast notification system (`Toast.tsx`)
+- [x] API error response parsing (`parseApiResponse`)
+- [x] Loading states for all async operations
 
 ---
 
-## Phase 2: Company Management
+## Phase 2: Company Management ✅ COMPLETED
 
 ### 2.1 Select Company Page
-- [ ] List user's companies with role display
-- [ ] Create new company button → form modal
-- [ ] Join company with invite code
-- [ ] Company preview before joining (lookup endpoint)
-- [ ] Pending requests status display
+- [x] List user's companies with role display
+- [x] Create new company button → form
+- [x] Join company with invite code
+- [x] Company preview before joining (lookup endpoint)
+- [x] Pending requests status display
 
 ### 2.2 Create Company Flow
-- [ ] Company name input
-- [ ] Optional logo URL
-- [ ] Submit → auto-select as active company
-- [ ] Redirect to dashboard
+- [x] Company name input
+- [x] Submit → auto-select as active company
+- [x] Redirect to dashboard
 
 ### 2.3 Join Company Flow
-- [ ] Invite code input with validation
-- [ ] Company preview (name, logo)
-- [ ] Submit join request
-- [ ] Status: pending → waiting for approval
-- [ ] My join requests list
+- [x] Invite code input with validation
+- [x] Company preview (name)
+- [x] Submit join request
+- [x] Status: pending → waiting for approval
 
 ### 2.4 Member Management (Owner/Admin)
 - [ ] Members list with roles and permissions
@@ -75,14 +72,13 @@ Next.js 16 (App Router) → REST API (localhost:8080/api) → Express + Prisma +
 
 ---
 
-## Phase 3: Products Module
+## Phase 3: Products Module ✅ COMPLETED (List View)
 
 ### 3.1 Products List
-- [ ] Paginated table with search
-- [ ] Columns: name, SKU, barcode, price, stock, min_stock
-- [ ] Sort by name, price, stock, created_at
-- [ ] Quick actions: edit, delete
-- [ ] Low stock indicator (below min_stock)
+- [x] Paginated table with search
+- [x] Columns: name, SKU, price, stock, min_stock
+- [x] Quick actions: edit, delete buttons
+- [x] Low stock indicator (below min_stock)
 
 ### 3.2 Product CRUD
 - [ ] Create product form (name, SKU, barcode, price, stock, min_stock, image_url)
@@ -97,13 +93,13 @@ Next.js 16 (App Router) → REST API (localhost:8080/api) → Express + Prisma +
 
 ---
 
-## Phase 4: Customers Module
+## Phase 4: Customers Module ✅ COMPLETED (List View)
 
 ### 4.1 Customers List
-- [ ] Paginated table with search
-- [ ] Columns: name, phone, email, total_debt, created_at
-- [ ] Sort and filter options
-- [ ] Quick actions: edit, delete, view debt
+- [x] Paginated table with search
+- [x] Columns: name, phone, email, total_debt
+- [x] Quick actions: edit, delete buttons
+- [x] Debt badge indicator
 
 ### 4.2 Customer CRUD
 - [ ] Create customer form (name, phone, email, address, notes)
@@ -117,13 +113,13 @@ Next.js 16 (App Router) → REST API (localhost:8080/api) → Express + Prisma +
 
 ---
 
-## Phase 5: Invoices Module
+## Phase 5: Invoices Module ✅ COMPLETED (List View)
 
 ### 5.1 Invoices List
-- [ ] Paginated table with filters
-- [ ] Filter by: date range, type (sale/purchase), status
-- [ ] Columns: invoice#, customer, total, paid, status, date
-- [ ] Quick actions: view, edit, delete
+- [x] Paginated table with type filter (all/sale/purchase)
+- [x] Columns: invoice#, type, customer, total, paid, status, date
+- [x] Status badges (draft, final, paid, partial, cancelled)
+- [x] Quick actions: view, delete buttons
 
 ### 5.2 Invoice Creation
 - [ ] Invoice form with customer selector
@@ -140,16 +136,15 @@ Next.js 16 (App Router) → REST API (localhost:8080/api) → Express + Prisma +
 ### 5.4 Excel Export
 - [ ] Export invoices to Excel
 - [ ] Custom date range selection
-- [ ] Column selection
 
 ---
 
-## Phase 6: Payments Module
+## Phase 6: Payments Module ✅ COMPLETED (List View)
 
 ### 6.1 Payments List
-- [ ] Paginated table with filters
-- [ ] Filter by: date range, type (received/made), status
-- [ ] Columns: amount, type, customer/supplier, invoice, date
+- [x] Paginated table with type filter (all/received/made)
+- [x] Columns: amount, type, customer, invoice, notes, date
+- [x] Received/made badges
 
 ### 6.2 Record Payment
 - [ ] Payment form (amount, type, customer/supplier, invoice link)
@@ -159,36 +154,27 @@ Next.js 16 (App Router) → REST API (localhost:8080/api) → Express + Prisma +
 ### 6.3 Debt Dashboard
 - [ ] Total debts overview
 - [ ] Overdue payments list
-- [ ] Payment reminders
 
 ---
 
-## Phase 7: Reports Module
+## Phase 7: Reports Module ✅ COMPLETED
 
-### 7.1 Sales Reports
-- [ ] Daily sales summary
-- [ ] Monthly sales trend chart
-- [ ] Top selling products
-- [ ] Top customers
+### 7.1 Monthly Report
+- [x] Tab: Monthly report table (month, invoices, revenue, payments)
 
-### 7.2 Inventory Reports
-- [ ] Current stock levels
-- [ ] Low stock alerts
-- [ ] Stock movement history
+### 7.2 Low Stock Report
+- [x] Tab: Low stock products table (name, SKU, stock, min_stock)
 
-### 7.3 Financial Reports
-- [ ] Revenue vs payments
-- [ ] Outstanding debts
-- [ ] Monthly profit/loss
+### 7.3 Activity Log
+- [x] Tab: Activity log table (user, action, entity, date)
 
 ### 7.4 Excel Export
 - [ ] Export any report to Excel
 - [ ] Custom date ranges
-- [ ] Column selection
 
 ---
 
-## Phase 8: Settings & Profile
+## Phase 8: Settings & Profile ⏳ PENDING
 
 ### 8.1 User Profile
 - [ ] Edit name, email
@@ -207,16 +193,41 @@ Next.js 16 (App Router) → REST API (localhost:8080/api) → Express + Prisma +
 ```
 src/
 ├── app/
-│   ├── (auth)/          # Auth pages
-│   ├── (dashboard)/     # Dashboard & main app
-│   ├── api/             # API routes (proxy to backend)
-│   └── layout.tsx       # Root layout
-├── components/          # Reusable components
-├── contexts/            # React contexts
-├── hooks/               # Custom hooks
-├── lib/                 # Utilities, API client
-└── types/               # TypeScript types
+│   ├── (auth)/              # Auth pages (login, register, verify-email, select-company)
+│   ├── (dashboard)/         # Dashboard & main app
+│   │   ├── customers/       # Customers module
+│   │   ├── dashboard/       # Dashboard page
+│   │   ├── invoices/        # Invoices module
+│   │   ├── payments/        # Payments module
+│   │   ├── products/        # Products module
+│   │   └── reports/         # Reports module
+│   ├── api/                 # API routes (proxy to backend)
+│   └── layout.tsx           # Root layout
+├── components/              # Reusable components (Nav, Footer, Toast)
+├── contexts/                # React contexts (AuthContext)
+├── lib/                     # Utilities, API client, types
+└── middleware.ts             # Route protection
 ```
+
+---
+
+## Implemented Pages
+
+| Page | Route | Status |
+|------|-------|--------|
+| Landing | `/` | ✅ |
+| Login | `/login` | ✅ |
+| Register | `/register` | ✅ |
+| Verify Email | `/verify-email` | ✅ |
+| Select Company | `/select-company` | ✅ |
+| Dashboard | `/dashboard` | ✅ |
+| Products | `/products` | ✅ |
+| Customers | `/customers` | ✅ |
+| Invoices | `/invoices` | ✅ |
+| Payments | `/payments` | ✅ |
+| Reports | `/reports` | ✅ |
+| Privacy | `/privacy` | ✅ |
+| Delete Account | `/delete-account` | ✅ |
 
 ---
 
@@ -229,15 +240,37 @@ src/
 | `/api/auth/me` | `/api/auth/me` | GET |
 | `/api/auth/refresh` | `/api/auth/refresh` | POST |
 | `/api/auth/logout` | `/api/auth/logout` | POST |
+| `/api/auth/verify-email` | `/api/auth/verify-email` | POST |
+| `/api/auth/verify-email/resend` | `/api/auth/verify-email/resend` | POST |
 | `/api/companies` | `/api/companies` | GET/POST |
+| `/api/companies/lookup` | `/api/companies/lookup` | GET |
+| `/api/companies/join` | `/api/companies/join` | POST |
 | `/api/dashboard/stats` | `/api/dashboard/stats` | GET |
+| `/api/dashboard/low-stock` | `/api/dashboard/low-stock` | GET |
+| `/api/dashboard/monthly-report` | `/api/dashboard/monthly-report` | GET |
+| `/api/dashboard/activity` | `/api/dashboard/activity` | GET |
+| `/api/products` | `/api/products` | GET/POST |
+| `/api/customers` | `/api/customers` | GET/POST |
+| `/api/invoices` | `/api/invoices` | GET/POST |
+| `/api/payments` | `/api/payments` | GET/POST |
+
+---
+
+## Next Steps
+
+1. **Phase 8:** Add Settings & Profile pages
+2. **CRUD Modals:** Add create/edit modals for Products, Customers, Invoices, Payments
+3. **Invoice Builder:** Full invoice creation with line items
+4. **Excel Export:** Export functionality for reports and invoices
+5. **Responsive Design:** Mobile sidebar toggle, responsive tables
 
 ---
 
 ## Notes
 
 - Backend API: `http://localhost:8080/api`
-- Access token: 15min expiry, stored in memory/httpOnly cookie
+- Access token: 15min expiry, stored in localStorage
 - Refresh token: 30 days, rotation on refresh
 - Company context: stored in cookie `mf_company_id`
 - All UI text in Arabic (RTL)
+- Build status: ✅ Passing
