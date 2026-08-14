@@ -9,9 +9,11 @@
       "logos/stockflow-logo-alt.png",
       "logos/favicon.png",
       "logos/favicon-1.svg",
-      "logos/favicon-3.svg"
+      "logos/favicon-3.svg",
+      "logos/stockflow-app-icon.svg",
+      "logos/stockflow-app-icon-round.svg"
     ],
-    "notes": "Primary logo is a green wordmark on transparent background (assets/images/logo.png from source). Alternate version is a green wordmark with tagline (assets/images/logo1.png). Favicon is a simplified mark."
+    "notes": "Primary logo is a green wordmark on transparent background (assets/images/logo.png from source, 1380KB). Alternate version is a green wordmark with tagline (assets/images/logo1.png, 1406KB). App icon is a warehouse-shelf SVG with orange arrow (logos/stockflow-app-icon.svg). Favicon is a simplified SVG mark."
   },
   "colors": [
     {
@@ -61,7 +63,7 @@
       "hex": "#f97316",
       "oklch": "oklch(0.65 0.18 50)",
       "name": "Warm Orange",
-      "usage": "Secondary accent for status badges, partial payment indicators, and alternate CTAs"
+      "usage": "Secondary accent, partial payment status, link color, badges"
     }
   ],
   "typography": {
@@ -162,7 +164,7 @@
       "Customer detail screens with transaction history and debt tracking",
       "Team management and role-based permission screens"
     ],
-    "treatment": "Border-radius: 14px on controls, 24px on cards. Clean white surfaces with green accent touches. Flat 2D interface with Material elevation for depth. Icons use outlined Material style (stroke width 2.5).",
+    "treatment": "Card radius 24px, control radius 16px (corrected from earlier 14px). Clean white surfaces with green accent touches. Flat 2D interface with Material elevation for depth. Icons use outlined Material style (stroke width 2.5).",
     "avoid": [
       "Dark mode or black backgrounds — the app is light-themed",
       "Aggressive gradients except for the welcome/onboarding screen",
@@ -172,41 +174,44 @@
       {
         "file": "imagery/db-architecture.png",
         "kind": "diagram",
-        "caption": "StockFlow database architecture — Supabase/PostgreSQL schema showing tables for companies, products, customers, invoices, and inventory tracking"
+        "caption": "StockFlow database architecture — Supabase/PostgreSQL schema"
       },
       {
         "file": "imagery/hero-0.png",
         "kind": "hero",
-        "caption": "StockFlow app hero visual — mobile dashboard overview with summary stats and quick actions"
+        "caption": "StockFlow app dashboard overview"
       },
       {
         "file": "imagery/hero-2.png",
         "kind": "hero",
-        "caption": "Hero image"
+        "caption": "StockFlow invoice creation screen"
       },
       {
         "file": "imagery/hero-3.png",
         "kind": "hero",
-        "caption": "Hero image"
+        "caption": "StockFlow product management screen"
       }
     ]
   },
   "layout": {
-    "radius": "14px",
-    "borderWeight": "1px",
-    "spacing": "4px / 8px / 16px / 24px / 32px / 48px scale",
+    "radius": "16px (controls), 24px (cards), 28px (dialogs), 8px (small), 36px (extra-large)",
+    "borderWeight": "1px (standard), 0.83px (thin/border), 1.5px (input focus)",
+    "spacing": "4px / 8px / 16px / 24px / 32px / 48px",
     "postureRules": [
       "Min design width: 360dp — all screens must work at this minimum",
       "Screen padding: 16px all sides",
-      "Card radius: 24px with white background and subtle green shadow",
-      "Control radius: 14px for inputs, buttons, and form fields",
+      "Card radius: 24px with white background and rgba(15,81,50,0.06) shadow",
+      "Control radius: 16px for inputs, buttons, and form fields",
       "Button minimum height: 48px (standard), 56px (primary CTA)",
       "Dialog radius: 28px — softer and more inviting",
       "Bottom navigation with 5 fixed destinations, selected item in green (#0F5132)",
-      "Status color system: green (#16A34A) for paid/positive, orange (#F97316) for partial, red (#B91C1C) for debt/negative",
-      "Input fields: white background with 0.83px light gray (#E5E5E5) border, focused state switches to 1px green border",
+      "Status color system: green (#0F5132 on #E8F1EC) for paid, orange (#F97316 on #FFF1E6) for partial, red (#B91C1C on #FEE2E2) for debt/negative",
+      "Input fields: white background (#FAFAFA) with 0.83px light gray (#E5E5E5) border, focused state switches to 1.5px green border",
       "Full-width cards with zero margin in list contexts",
-      "Content is always RTL (right-to-left) aligned"
+      "Content is always RTL (right-to-left) aligned",
+      "Chips use StadiumBorder (999px radius), transparent border, 10px horizontal padding",
+      "Divider: 1px #E5E5E5, zero space",
+      "Icons: outlined Material style (stroke width 2.5)"
     ]
   }
 }

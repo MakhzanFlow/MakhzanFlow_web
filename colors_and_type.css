@@ -68,7 +68,7 @@
 
   /* ----- Border Radius ----- */
   --stockflow-radius-sm: 8px;
-  --stockflow-radius-md: 14px;
+  --stockflow-radius-md: 16px;
   --stockflow-radius-lg: 16px;
   --stockflow-radius-card: 24px;
   --stockflow-radius-dialog: 28px;
@@ -86,7 +86,7 @@
   --stockflow-control-height: 48px;
   --stockflow-control-height-lg: 56px;
   --stockflow-control-padding: 16px;
-  --stockflow-control-radius: 14px;
+  --stockflow-control-radius: 16px;
 }
 
 /* ----- Utility Classes ----- */

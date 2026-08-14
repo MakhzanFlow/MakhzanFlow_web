@@ -46,6 +46,58 @@ Fonts, logos, and assets selected: none.
 
 Uploaded brand asset files under `assets/`: none.
 
+## AI Optimize Reconciliation (2026-07-11)
+
+### Measurements taken (from Flutter source code)
+- **Primary evidence files:** `lib/config/theme/stockflow_theme.dart`, `lib/core/constants/app_colors.dart`, `lib/core/constants/app_sizes.dart`
+- **Confirmed type scale:** 30/24/18/14/12/11px (Cairo, Google Fonts)
+- **Confirmed radii:** 16px controls (`rControl = 16.0`), 24px cards (`rCard = 24.0`), 28px dialogs, 8px small, 36px xlarge
+- **Confirmed spacing:** 4/8/16/24/32/48px (`app_sizes.dart:7-12`)
+- **Confirmed line heights:** 1.2 display, 1.3 title-lg, 1.35 title-md, 1.6 body, 1.55 body-sm, 1.4 label
+- **Confirmed status colors:** Paid `#0F5132` on `#E8F1EC`, Partial `#F97316` on `#FFF1E6`, Debt `#B91C1C` on `#FEE2E2`
+- **Confirmed icon strokes:** 2.5 outlined, 0.83 thin, 3.0 logo
+- **Confirmed shadow:** `mainGreen.withValues(alpha: 0.06)` on cards, zero elevation on app bar
+- **Confirmed button heights:** 56px primary CTA, 48px standard
+- **Confirmed input focus:** 1.5px green border
+- **Confirmed welcome gradient:** `#1A7A4A` → `#050F09`
+
+### Discrepancies fixed
+1. **Control radius:** antd algorithm generated 14px from seed → corrected to **16px** (source value)
+2. **colorError:** antd generated `#ff4d4f` → corrected to **`#b91c1c`** (source value)
+3. **colorSuccess:** antd generated `#52c41a` → corrected to **`#16a34a`** (source value)  
+4. **colorWarning:** antd generated `#faad14` → corrected to **`#f97316`** (warm orange, same as accent-secondary)
+5. **Missing token - secondary:** `#0b3a24` added to palette (was missing from DESIGN.md and brand.json)
+6. **Missing token - inputBg:** `#fafafa` added to palette
+7. **Missing token - mutedText:** `#64748b` added to palette
+8. **Missing shadow spec:** Card shadow `0 2px 8px rgba(15,81,50,0.06)` documented
+9. **Missing motion spec:** Duration/easing tokens documented
+10. **Missing line height spec:** All line height values documented
+11. **controlHeight:** Corrected from 32px → 48px, controlHeightLG from 40px → 56px
+
+### Files updated
+- `DESIGN.md` — full rewrite with source citations, corrected radii, all missing tokens
+- `brand.json` — all missing colors, status colors, shadow/motion/line-height sections
+- `system/seed.json` — corrected colorSuccess, colorWarning, colorError, borderRadius, controlHeight
+- `system/theme.json` — corrected matching fields
+- `system/variables.css` — corrected --brand-color-success/warning/error/border-radius/control-height
+- `system/variables.dark.css` — corrected matching fields with dark-mode variants
+- `system/tokens.default.json` — corrected colorSuccess/Warning/Error, borderRadius, controlHeight
+- `system/tokens.dark.json` — corrected matching fields
+- `system/tokens.compact.json` — corrected status colors
+- `system/BRAND-SYSTEM.md` — added reconciliation table documenting antd vs source discrepancies
+- `BRAND.md` — corrected radius, added status color table, added source citations
+- `guide.md` — corrected radius, simplified
+- `README.md` — corrected radius in highlights, added elevation/motion
+- `SKILL.md` — corrected radius, added component details
+- `colors_and_type.css` — corrected --stockflow-radius-md (14px → 16px) and --stockflow-control-radius (14px → 16px)
+
+### Left to do (artifacts need regeneration from updated seed)
+- `system/index.html` — still uses old antd-generated 14px radius
+- `system/kit.html`, `system/kit.dark.html` — same
+- `system/artifacts/*.html` — all 6 generated artifacts still use old values
+- `preview/*.html` — preview cards use old values
+These are auto-generated from the antd algorithm and cannot be patched inline — they need `od brand finalize github-4884dc --json` to regenerate.
+
 ## Notes
 
 No additional notes provided.

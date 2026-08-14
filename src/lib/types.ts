@@ -1,0 +1,81 @@
+export interface User {
+  id: string
+  name: string
+  email: string
+  is_verified: boolean
+  verified_at: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface ApiResponse<T = unknown> {
+  success: boolean
+  message?: string
+  data?: T
+  errors?: string[]
+}
+
+export interface PaginatedResponse<T> extends ApiResponse<T[]> {
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    pages: number
+  }
+}
+
+export interface AuthTokens {
+  accessToken: string
+  refreshToken: string
+  user: User
+}
+
+export interface Company {
+  id: string
+  name: string
+  logo_url: string | null
+  invite_code: string | null
+  created_at: string
+  updated_at: string
+  company_members?: { role: string; permissions: Record<string, unknown> }[]
+}
+
+export interface DashboardStats {
+  productsCount: number
+  customersCount: number
+  totalDebt: number
+  todaySales: number
+  monthlyPayments: number
+  weeklySales: { date: string; label: string; amount: number }[]
+  recentActivities: Activity[]
+  fetchedAt: string
+}
+
+export interface LowStockProduct {
+  id: string
+  name: string
+  sku: string
+  barcode: string | null
+  price: number
+  stock: number
+  min_stock: number
+  image_url: string | null
+}
+
+export interface MonthlyReport {
+  month: string
+  totalInvoices: number
+  totalRevenue: number
+  totalPayments: number
+}
+
+export interface Activity {
+  id: string
+  user_id: string
+  user_name: string
+  entity: string
+  entity_id: string
+  action: string
+  changes: Record<string, { old: unknown; new: unknown }>
+  created_at: string
+}

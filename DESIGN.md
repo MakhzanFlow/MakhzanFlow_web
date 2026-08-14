@@ -32,7 +32,7 @@ StockFlow is a warehouse and supermarket distribution management system with inv
 | muted | Silver Gray | `#737373` | Secondary text, metadata, hints, and captions |
 | border | Light Gray Border | `#e5e5e5` | Card borders, input borders, dividers, and rules |
 | accent | Forest Green | `#0f5132` | Primary action buttons, active navigation, app bars, key highlights |
-| accent-secondary | Warm Orange | `#f97316` | Secondary accent for status badges, partial payment indicators, and alternate CTAs |
+| accent-secondary | Warm Orange | `#f97316` | Secondary accent, partial payment status, link color, badges |
 
 ## Typography
 - **Display:** Cairo — weights 400, 500, 600, 700 — fallbacks: system-ui, -apple-system, Segoe UI, Roboto, sans-serif
@@ -58,24 +58,27 @@ StockFlow is a warehouse and supermarket distribution management system with inv
 
 - **Style:** Clean mobile UI screenshots on light background. Flat illustrations for empty states. Status-colored icon badges (green = paid, orange = partial, red = debt). The app uses a Material 3 design system with moderate shadows and elevated card surfaces.
 - **Subjects:** Dashboard with summary cards (today's sales, product count, total debts, customer count), Product management screens with inventory tracking and stock status, Invoice creation flow with customer selection, product picker, and payment method, Customer detail screens with transaction history and debt tracking, Team management and role-based permission screens
-- **Treatment:** Border-radius: 14px on controls, 24px on cards. Clean white surfaces with green accent touches. Flat 2D interface with Material elevation for depth. Icons use outlined Material style (stroke width 2.5).
+- **Treatment:** Card radius 24px, control radius 16px (corrected from earlier 14px). Clean white surfaces with green accent touches. Flat 2D interface with Material elevation for depth. Icons use outlined Material style (stroke width 2.5).
 - **Avoid:** Dark mode or black backgrounds — the app is light-themed, Aggressive gradients except for the welcome/onboarding screen, Photography or photo-realistic imagery
 
 ## Layout
 
-- **Radius:** 14px
-- **Border weight:** 1px
-- **Spacing:** 4px / 8px / 16px / 24px / 32px / 48px scale
+- **Radius:** 16px (controls), 24px (cards), 28px (dialogs), 8px (small), 36px (extra-large)
+- **Border weight:** 1px (standard), 0.83px (thin/border), 1.5px (input focus)
+- **Spacing:** 4px / 8px / 16px / 24px / 32px / 48px
 
 ### Posture rules
 - Min design width: 360dp — all screens must work at this minimum
 - Screen padding: 16px all sides
-- Card radius: 24px with white background and subtle green shadow
-- Control radius: 14px for inputs, buttons, and form fields
+- Card radius: 24px with white background and rgba(15,81,50,0.06) shadow
+- Control radius: 16px for inputs, buttons, and form fields
 - Button minimum height: 48px (standard), 56px (primary CTA)
 - Dialog radius: 28px — softer and more inviting
 - Bottom navigation with 5 fixed destinations, selected item in green (#0F5132)
-- Status color system: green (#16A34A) for paid/positive, orange (#F97316) for partial, red (#B91C1C) for debt/negative
-- Input fields: white background with 0.83px light gray (#E5E5E5) border, focused state switches to 1px green border
+- Status color system: green (#0F5132 on #E8F1EC) for paid, orange (#F97316 on #FFF1E6) for partial, red (#B91C1C on #FEE2E2) for debt/negative
+- Input fields: white background (#FAFAFA) with 0.83px light gray (#E5E5E5) border, focused state switches to 1.5px green border
 - Full-width cards with zero margin in list contexts
 - Content is always RTL (right-to-left) aligned
+- Chips use StadiumBorder (999px radius), transparent border, 10px horizontal padding
+- Divider: 1px #E5E5E5, zero space
+- Icons: outlined Material style (stroke width 2.5)

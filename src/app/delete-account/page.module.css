@@ -1,0 +1,454 @@
+/* ── Delete-account page styles ──────────────────────────────── */
+
+.pageWrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(circle at 14% 16%, color-mix(in srgb, var(--error) 10%, transparent), transparent 26%),
+    radial-gradient(circle at 86% 8%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 28%),
+    linear-gradient(180deg, var(--surface), var(--bg) 42%);
+  position: relative;
+  overflow: hidden;
+}
+
+.pageWrap::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--accent) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--accent) 7%, transparent) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: linear-gradient(to bottom, #000, transparent 72%);
+}
+
+/* Header */
+.siteHeader {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
+  padding: 14px clamp(16px, 4vw, 40px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--fg);
+  font-weight: 700;
+  font-size: 20px;
+}
+.logo img {
+  height: 36px;
+  width: auto;
+}
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .2s, border-color .2s, background .2s;
+}
+.backLink:hover {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 24%, var(--border));
+  background: var(--surface);
+}
+
+/* Main layout */
+.deletePage {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(280px, .85fr) minmax(360px, 520px);
+  gap: clamp(24px, 5vw, 72px);
+  align-items: start;
+  max-width: 1120px;
+  width: 100%;
+  margin: 0 auto;
+  padding: clamp(36px, 7vw, 84px) clamp(16px, 4vw, 40px);
+  flex: 1;
+}
+
+.heroPanel {
+  position: sticky;
+  top: calc(var(--nav-h) + 32px);
+  padding: clamp(24px, 4vw, 40px);
+  border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+  border-radius: 34px;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--surface) 88%, transparent), color-mix(in srgb, var(--surface) 66%, transparent)),
+    radial-gradient(circle at 18% 8%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 34%);
+  box-shadow: 0 28px 76px -50px rgba(0, 0, 0, .42), 0 1px 0 rgba(255, 255, 255, .8) inset;
+  backdrop-filter: blur(20px);
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  color: var(--error);
+  background: color-mix(in srgb, var(--error) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--error) 18%, transparent);
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: var(--space-5);
+}
+
+.heroPanel h1 {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5vw, 52px);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  margin: 0 0 var(--space-4);
+  max-width: 11ch;
+}
+
+.heroPanel p {
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.8;
+  margin: 0;
+  max-width: 48ch;
+}
+
+.noteStack {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.noteItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  color: var(--fg);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.noteItem span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 10%, transparent);
+  flex-shrink: 0;
+}
+
+.contactStrip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.contactStrip a {
+  direction: ltr;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.deleteCard {
+  width: 100%;
+}
+
+.deleteCardInner {
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
+  border-radius: 34px;
+  padding: clamp(24px, 4vw, 40px);
+  box-shadow: 0 24px 70px -52px rgba(0, 0, 0, .48);
+  backdrop-filter: blur(18px);
+}
+
+/* Warning banner */
+.warningBanner {
+  background: color-mix(in srgb, var(--error) 6%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--error) 25%, transparent);
+  border-inline-start: 4px solid var(--error);
+  border-radius: 22px;
+  padding: 16px 20px;
+  margin-bottom: 32px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.warningBanner svg { flex-shrink: 0; margin-top: 2px; }
+.warningBanner h2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--error);
+  margin: 0 0 4px;
+}
+.warningBanner p {
+  font-size: 13px;
+  color: color-mix(in srgb, var(--error), var(--fg) 15%);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Form */
+.formGroup { margin-bottom: 24px; }
+.formGroup label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg);
+  margin-bottom: 6px;
+}
+.required { color: var(--error); }
+.optionalLabel { color: var(--muted); font-weight: 400; }
+.hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+.formInput,
+.formSelect,
+.formTextarea {
+  width: 100%;
+  padding: 12px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--fg);
+  background: color-mix(in srgb, var(--surface) 82%, var(--bg));
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.formInput:focus,
+.formSelect:focus,
+.formTextarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.formInput::placeholder,
+.formTextarea::placeholder { color: color-mix(in srgb, var(--muted) 60%, transparent); }
+.formInput.error,
+.formSelect.error,
+.formTextarea.error { border-color: var(--error); }
+.formErrorMsg {
+  font-size: 12px;
+  color: var(--error);
+  margin-top: 4px;
+  display: none;
+}
+.formErrorMsg.visible { display: block; }
+
+.formSelect {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23737373' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 16px center;
+  padding-inline-start: 40px;
+  padding-inline-end: 16px;
+}
+.formTextarea { min-height: 100px; resize: vertical; }
+
+/* Checkbox */
+.checkboxGroup {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 28px;
+  padding: var(--space-4);
+  border: 1px dashed color-mix(in srgb, var(--error) 28%, var(--border));
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--error) 4%, transparent);
+}
+.checkboxGroup input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: all .2s;
+  margin-top: 2px;
+  position: relative;
+}
+.checkboxGroup input[type="checkbox"]:checked {
+  background: var(--error);
+  border-color: var(--error);
+}
+.checkboxGroup input[type="checkbox"]:checked::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.checkboxGroup input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.checkboxGroup label {
+  font-size: 14px;
+  color: var(--fg);
+  cursor: pointer;
+  user-select: none;
+  font-weight: 500;
+}
+.highlight { font-weight: 700; color: var(--error); }
+
+/* Submit button */
+.btnSubmit {
+  width: 100%;
+  padding: 0 20px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--error);
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: background .2s, transform .15s, box-shadow .2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 50px;
+  box-shadow: 0 12px 26px -18px var(--error);
+}
+.btnSubmit:hover { background: color-mix(in srgb, var(--error) 85%, #0a0a0a); }
+.btnSubmit:active { transform: scale(.98); }
+.btnSubmit:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btnSubmit:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+/* Spinner */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(255,255,255,.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  display: none;
+}
+.btnSubmit.loading .spinner { display: block; }
+.btnSubmit.loading .btnText { display: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Success state */
+.successState {
+  display: none;
+  text-align: center;
+  padding: 16px 0 8px;
+}
+.successState.visible { display: block; }
+.iconWrap {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 20px;
+  background: var(--success-bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.successState h2 { font-size: 22px; font-weight: 700; color: var(--fg); margin-bottom: 8px; }
+.successState p { font-size: 14px; color: var(--muted); line-height: 1.7; max-width: 380px; margin: 0 auto; }
+.emailRef {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 8px 20px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent);
+  direction: ltr;
+  unicode-bidi: plaintext;
+}
+.btnDone {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 12px 32px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--accent);
+  border: none;
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: background .2s;
+  cursor: pointer;
+}
+.btnDone:hover { background: color-mix(in srgb, var(--accent) 80%, #0a0a0a); }
+
+/* Form wrap */
+.formWrap.hidden { display: none; }
+
+/* Footer */
+.siteFooter {
+  margin-top: auto;
+  position: relative;
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  padding: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+.siteFooter a { color: var(--accent); text-decoration: none; font-weight: 500; }
+.siteFooter a:hover { text-decoration: underline; }
+
+/* Responsive */
+@media (max-width: 560px) {
+  .deletePage {
+    grid-template-columns: 1fr;
+    padding-top: 24px;
+  }
+  .heroPanel {
+    position: relative;
+    top: auto;
+  }
+  .deleteCardInner { padding: 24px 18px; border-radius: 28px; }
+  .siteHeader { padding: 12px 16px; }
+  .logo { font-size: 17px; }
+  .backLink { height: 34px; padding: 0 10px; font-size: 12px; }
+  .heroPanel h1 { max-width: none; }
+}
+
+@media (max-width: 900px) {
+  .deletePage {
+    grid-template-columns: 1fr;
+  }
+  .heroPanel {
+    position: relative;
+    top: auto;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation-duration: .01ms !important; }
+  .btnSubmit { transition-duration: .01ms !important; }
+}

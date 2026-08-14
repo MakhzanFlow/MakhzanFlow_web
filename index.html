@@ -721,16 +721,16 @@ nav .container {
   content: '';
   position: absolute;
   top: 2px;
-  left: 2px;
   width: 22px;
   height: 22px;
   background: #fff;
   border-radius: 50%;
   box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-  transition: transform .25s cubic-bezier(.2, 1, .36, 1);
+  transition: inset-inline-start .25s cubic-bezier(.2, 1, .36, 1);
+  inset-inline-start: 2px;
 }
 .pricing-toggle-switch.active::after {
-  transform: translateX(22px);
+  inset-inline-start: calc(100% - 24px);
 }
 .pricing-toggle-save {
   position: absolute;
@@ -1389,11 +1389,11 @@ footer {
     <!-- Trust badges -->
     <div class="pricing-trust">
       <span class="pricing-trust-item">
-        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+        <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/></svg>
         لا بطاقة ائتمان
       </span>
       <span class="pricing-trust-item">
-        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         إلغاء في أي وقت
       </span>
       <span class="pricing-trust-item">
@@ -1415,7 +1415,7 @@ footer {
     <button class="btn reveal-child">ابدأ مجاناً</button>
     <div class="reveal-child" style="margin-top:var(--space-5)">
       <a href="https://play.google.com/store/apps/details?id=com.example.stockflow" target="_blank" rel="noopener" style="display:inline-flex;text-decoration:none" aria-label="تحميل من Google Play">
-        <svg xmlns="http://www.w3.org/2000/svg" width="180" height="69" viewBox="0 0 180 69" aria-label="Google Play"><rect width="180" height="69" rx="10" fill="#1a1a1a"/><g transform="translate(14,12)"><path d="M7.48 7.86c-.32.32-.5.78-.5 1.36v42.56c0 .58.18 1.04.5 1.36l.07.07L29.8 36.02v-.04L7.48 7.86z" fill="#fbbb05"/><path d="M33.54 32.42 22.3 21.18l-.07.07-14.83 28.8c.13.24.34.38.64.38.2 0 .42-.07.64-.2l25.5-14.55.22-.16-.4-.1z" fill="#ea4335"/><path d="M33.54 35.58 22.3 46.82l-.07-.07L7.55 18.09c.13-.24.34-.38.64-.38.21 0 .43.07.64.2l25.5 14.55.2.11.01.01z" fill="#34a853"/><path d="M37.3 32.42 33.54 29.9v.13l-3.97 3.97 3.97 3.97 3.76-2.15c.73-.42.73-1.4 0-1.82l.01-.1z" fill="#4285f4"/><path d="M33.54 29.9l-7.34-7.34L22.3 26.2l3.97 3.97-3.97 3.97 3.9 3.63 7.34-7.33v-1.14l.01-.1z" fill="#fbbb05"/><path d="M33.54 35.58l-7.34-7.34L22.3 32.2l3.97 3.97-3.97 3.97 3.9 3.63 7.34-7.33v-.26z" fill="#ea4335"/></g><text font-family="Arial,sans-serif" font-weight="700" font-size="7" fill="#b3b3b3" x="62" y="24" letter-spacing="1">GET IT ON</text><text font-family="Arial,sans-serif" font-weight="600" font-size="15" fill="#fff" x="62" y="42">Google Play</text></svg>
+        <img src="mrgqpgfo-google-play.png" width="180" height="69" alt="Google Play" style="display:block;border-radius:10px">
       </a>
     </div>
   </div>
@@ -1427,29 +1427,29 @@ footer {
     <h2 class="section-title reveal-child">إجابات سريعة لأسئلتك</h2>
     <p class="section-subtitle reveal-child">كل اللي محتاج تعرفه قبل ما تبدا مع StockFlow</p>
     <div class="faq-list reveal-child">
-      <div class="faq-item open">
-        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">هل فيه نسخة مجانية؟</button>
-        <div class="faq-a"><p>أيوه، في خطة Starter مجانية بالكامل — شركة واحدة، 3 موظفين، التقارير الأساسية. تقدر تبدا من غير ما تدفع حاجة.</p></div>
+      <div class="faq-item">
+        <button class="faq-q">هل فيه نسخة مجانية؟</button>
+        <div class="faq-a"><div><p>أيوه، في خطة Starter مجانية بالكامل — شركة واحدة، 3 موظفين، التقارير الأساسية. تقدر تبدا من غير ما تدفع حاجة.</p></div></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">هل StockFlow شغال من غير نت؟</button>
-        <div class="faq-a"><p>أيوه، في دعم غير متصل (offline support) — تقدر تسجل فواتير وتضيف منتجات من غير اتصال بالنت، و automatic sync لما ترجع تتصل.</p></div>
+        <button class="faq-q">هل StockFlow شغال من غير نت؟</button>
+        <div class="faq-a"><div><p>أيوه، في دعم غير متصل (offline support) — تقدر تسجل فواتير وتضيف منتجات من غير اتصال بالنت، و automatic sync لما ترجع تتصل.</p></div></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">أقدر أدير أكتر من شركة من حساب واحد؟</button>
-        <div class="faq-a"><p>أكيد. ميزة Multi-company — تقدر تنشئ شركات غير محدودة، تتنقل بينهم فوراً، وكل شركة ليها بيانات وفريق وصلاحيات مستقلة.</p></div>
+        <button class="faq-q">أقدر أدير أكتر من شركة من حساب واحد؟</button>
+        <div class="faq-a"><div><p>أكيد. ميزة Multi-company — تقدر تنشئ شركات غير محدودة، تتنقل بينهم فوراً، وكل شركة ليها بيانات وفريق وصلاحيات مستقلة.</p></div></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">هل أقدر أحدد صلاحيات كل موظف؟</button>
-        <div class="faq-a"><p>أيوه، نظام صلاحيات مرن — owner كل حاجة، admin يقدّر يفعّل/يعطّل صلاحيات، employee ليه بس الصلاحيات اللي تنداله. تقدر تتحكم في كل حاجة: المنتجات، الفواتير، التقارير، الدفع...</p></div>
+        <button class="faq-q">هل أقدر أحدد صلاحيات كل موظف؟</button>
+        <div class="faq-a"><div><p>أيوه، نظام صلاحيات مرن — owner كل حاجة، admin يقدّر يفعّل/يعطّل صلاحيات، employee ليه بس الصلاحيات اللي تنداله. تقدر تتحكم في كل حاجة: المنتجات، الفواتير، التقارير، الدفع...</p></div></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">هل أقدر أستورد المنتجات من Excel؟</button>
-        <div class="faq-a"><p>أيوه، تقدر تستورد المنتجات والعملاء من Excel، وتصدر التقارير إلى Excel برضه. ولو عايز دمج مع POS أو باركود Scanner، البرنامج بيدعمه.</p></div>
+        <button class="faq-q">هل أقدر أستورد المنتجات من Excel؟</button>
+        <div class="faq-a"><div><p>أيوه، تقدر تستورد المنتجات والعملاء من Excel، وتصدر التقارير إلى Excel برضه. ولو عايز دمج مع POS أو باركود Scanner، البرنامج بيدعمه.</p></div></div>
       </div>
       <div class="faq-item">
-        <button class="faq-q" onclick="this.parentElement.classList.toggle('open')">بياناتي آمنة؟</button>
-        <div class="faq-a"><p>أكيد. تشفير كامل، نسخ احتياطي تلقائي، صلاحيات الأدوار، وعزل بيانات كل شركة. ولو احتجت مساعدة، الدعم الفني موجود.</p></div>
+        <button class="faq-q">بياناتي آمنة؟</button>
+        <div class="faq-a"><div><p>أكيد. تشفير كامل، نسخ احتياطي تلقائي، صلاحيات الأدوار، وعزل بيانات كل شركة. ولو احتجت مساعدة، الدعم الفني موجود.</p></div></div>
       </div>
     </div>
   </div>

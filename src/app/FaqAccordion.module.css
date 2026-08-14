@@ -1,0 +1,78 @@
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.faqItem {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--surface);
+  transition: box-shadow .2s;
+}
+
+.faqItem:hover {
+  box-shadow: 0 4px 12px -8px rgba(0, 0, 0, 0.06);
+}
+
+.faqQuestion {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--fg);
+  text-align: right;
+  direction: rtl;
+}
+
+.faqQuestion::after {
+  content: '';
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  background: var(--accent);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") center/contain no-repeat;
+  transition: transform .25s;
+}
+
+.open .faqQuestion::after {
+  transform: rotate(180deg);
+}
+
+.faqAnswer {
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  transition: grid-template-rows .30s cubic-bezier(.20, 1, .36, 1), padding .30s cubic-bezier(.20, 1, .36, 1);
+  padding: 0 var(--space-6);
+  direction: rtl;
+  text-align: right;
+  color: var(--muted);
+  line-height: 1.7;
+  font-size: .925rem;
+}
+
+.faqAnswer > div {
+  min-height: 0;
+}
+
+.open .faqAnswer {
+  grid-template-rows: 1fr;
+  padding: 0 var(--space-6) var(--space-5);
+}
+
+.faqAnswer p {
+  margin: 0;
+}
