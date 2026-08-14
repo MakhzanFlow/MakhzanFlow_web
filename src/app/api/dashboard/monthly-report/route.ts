@@ -15,15 +15,20 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url)
-    const query = searchParams.toString()
-    const endpoint = `dashboard/monthly-report${query ? `?${query}` : ''}`
+    const months = searchParams.get('months') || '12'
+    const from = searchParams.get('from') || ''
+    const to = searchParams.get('to') || ''
 
-    const data = await apiServer(endpoint, { token, companyId })
+    const query = new URLSearchParams({ months })
+    if (from) query.set('from', from)
+    if (to) query.set('to', to)
+
+    const data = await apiServer(`dashboard/monthly-report?${query}`, { token, companyId })
     return NextResponse.json(data)
   } catch (error: unknown) {
     const err = error as { status?: number; data?: unknown; message?: string }
     return NextResponse.json(
-      err.data || { success: false, message: err.message || 'Failed' },
+      err.data || { success: false, message: err.message || 'Failed to load monthly report' },
       { status: err.status || 500 }
     )
   }

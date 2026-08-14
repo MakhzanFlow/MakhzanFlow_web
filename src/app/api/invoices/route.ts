@@ -17,15 +17,23 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const page = searchParams.get('page') || '1'
     const limit = searchParams.get('limit') || '20'
+    const type = searchParams.get('type') || ''
+    const status = searchParams.get('status') || ''
+    const from = searchParams.get('from') || ''
+    const to = searchParams.get('to') || ''
 
     const query = new URLSearchParams({ page, limit })
+    if (type) query.set('type', type)
+    if (status) query.set('status', status)
+    if (from) query.set('from', from)
+    if (to) query.set('to', to)
 
-    const data = await apiServer(`dashboard/activity?${query}`, { token, companyId })
+    const data = await apiServer(`invoices?${query}`, { token, companyId })
     return NextResponse.json(data)
   } catch (error: unknown) {
     const err = error as { status?: number; data?: unknown; message?: string }
     return NextResponse.json(
-      err.data || { success: false, message: err.message || 'Failed to load activity log' },
+      err.data || { success: false, message: err.message || 'Failed to load invoices' },
       { status: err.status || 500 }
     )
   }
