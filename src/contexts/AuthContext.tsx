@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
-import { parseApiResponse } from '@/lib/api-client'
+import { apiClient, parseApiResponse, setTokens, getRefreshToken, clearTokens } from '@/lib/api-client'
 import type { User } from '@/lib/types'
 
 const COMPANY_COOKIE = 'mf_company_id'
@@ -45,14 +45,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter()
 
   useEffect(() => {
-    fetch('/api/auth/me')
-      .then((res) => parseApiResponse(res))
+    const token = localStorage.getItem('mf_access_token')
+    if (!token) {
+      setLoading(false)
+      return
+    }
+
+    apiClient<User>('/auth/me')
       .then((data) => {
         if (data.success && data.data) {
-          setUser(data.data as User)
+          setUser(data.data)
+        } else {
+          clearTokens()
         }
       })
-      .catch(() => {})
+      .catch(() => {
+        clearTokens()
+      })
       .finally(() => setLoading(false))
   }, [])
 
@@ -62,9 +71,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     })
-    const data = await parseApiResponse<{ user: User }>(res)
+    const data = await parseApiResponse<{ accessToken: string; refreshToken: string; user: User }>(res)
     if (!data.success) throw new Error(data.message || 'Login failed')
-    setUser(data.data?.user ?? null)
+    if (data.data) {
+      setTokens(data.data.accessToken, data.data.refreshToken)
+      setUser(data.data.user)
+    }
     router.push('/select-company')
   }, [router])
 
@@ -74,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password }),
     })
-    const data = await parseApiResponse<{ user: User }>(res)
+    const data = await parseApiResponse(res)
     if (!data.success) throw new Error(data.message || 'Registration failed')
     return { message: data.message }
   }, [])
@@ -85,9 +97,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, token }),
     })
-    const data = await parseApiResponse<{ user: User }>(res)
+    const data = await parseApiResponse<{ accessToken: string; refreshToken: string; user: User }>(res)
     if (!data.success) throw new Error(data.message || 'Verification failed')
-    setUser(data.data?.user ?? null)
+    if (data.data) {
+      setTokens(data.data.accessToken, data.data.refreshToken)
+      setUser(data.data.user)
+    }
     router.push('/select-company')
   }, [router])
 
@@ -114,7 +129,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [router])
 
   const logout = useCallback(async () => {
-    await fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
+    const refresh = getRefreshToken()
+    if (refresh) {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken: refresh }),
+      }).catch(() => {})
+    }
+    clearTokens()
     setUser(null)
     setCompanyId(null)
     clearCompanyCookie()

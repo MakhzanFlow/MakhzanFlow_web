@@ -2,12 +2,22 @@
 
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import styles from './dashboard/dashboard.module.css'
 
+const navItems = [
+  { href: '/dashboard', label: 'لوحة التحكم', icon: '📊' },
+  { href: '/products', label: 'المنتجات', icon: '📦' },
+  { href: '/customers', label: 'العملاء', icon: '👥' },
+  { href: '/invoices', label: 'الفواتير', icon: '📄' },
+  { href: '/payments', label: 'المدفوعات', icon: '💰' },
+  { href: '/reports', label: 'التقارير', icon: '📈' },
+]
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, companyId, loading, logout } = useAuth()
+  const { user, companyId, loading, logout, clearCompany } = useAuth()
+  const pathname = usePathname()
   const router = useRouter()
 
   useEffect(() => {
@@ -36,13 +46,24 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className={styles.sidebarHeader}>
           <Link href="/dashboard" className={styles.logo}>StockFlow</Link>
         </div>
+
         <nav className={styles.nav}>
-          <Link href="/dashboard" className={styles.navItemActive}>
-            <span className={styles.navIcon}>📊</span>
-            لوحة التحكم
-          </Link>
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`${styles.navItem} ${pathname === item.href ? styles.navItemActive : ''}`}
+            >
+              <span className={styles.navIcon}>{item.icon}</span>
+              {item.label}
+            </Link>
+          ))}
         </nav>
+
         <div className={styles.sidebarFooter}>
+          <button onClick={clearCompany} className={styles.switchCompany}>
+            تبديل الشركة
+          </button>
           <div className={styles.userInfo}>
             <div className={styles.avatar}>{user.name.charAt(0)}</div>
             <div className={styles.userDetails}>

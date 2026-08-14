@@ -79,3 +79,84 @@ export interface Activity {
   changes: Record<string, { old: unknown; new: unknown }>
   created_at: string
 }
+
+export interface Product {
+  id: string
+  name: string
+  sku: string
+  barcode: string | null
+  price: number
+  stock: number
+  min_stock: number
+  image_url: string | null
+  company_id: string
+  created_at: string
+  updated_at: string
+}
+
+export interface Customer {
+  id: string
+  name: string
+  phone: string | null
+  email: string | null
+  address: string | null
+  notes: string | null
+  total_debt: number
+  company_id: string
+  created_at: string
+  updated_at: string
+}
+
+export interface Invoice {
+  id: string
+  invoice_number: string
+  type: 'sale' | 'purchase'
+  status: 'draft' | 'final' | 'paid' | 'partial' | 'cancelled'
+  customer_id: string | null
+  customer_name?: string
+  subtotal: number
+  discount: number
+  tax: number
+  total: number
+  paid_amount: number
+  notes: string | null
+  company_id: string
+  created_at: string
+  updated_at: string
+  invoice_items?: InvoiceItem[]
+}
+
+export interface InvoiceItem {
+  id: string
+  invoice_id: string
+  product_id: string
+  product_name?: string
+  quantity: number
+  unit_price: number
+  total: number
+}
+
+export interface Payment {
+  id: string
+  amount: number
+  type: 'received' | 'made'
+  customer_id: string | null
+  customer_name?: string
+  invoice_id: string | null
+  notes: string | null
+  company_id: string
+  created_at: string
+}
+
+export interface JoinRequest {
+  id: string
+  company_id: string
+  user_id: string
+  status: 'pending' | 'approved' | 'rejected'
+  created_at: string
+  companies: {
+    id: string
+    name: string
+    logo_url: string | null
+  }
+}

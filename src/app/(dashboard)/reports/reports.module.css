@@ -1,0 +1,155 @@
+.page {
+  max-width: 1100px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--fg);
+  margin: 0;
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  margin-bottom: 20px;
+}
+
+.tab {
+  height: 36px;
+  padding: 0 16px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.tab:hover {
+  color: var(--fg);
+}
+
+.tabActive {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.tableWrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th {
+  padding: 12px 16px;
+  text-align: right;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--fg);
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background: var(--bg);
+}
+
+.nameCell {
+  font-weight: 600;
+}
+
+.skuCell {
+  font-family: monospace;
+  font-size: 13px;
+  color: var(--muted);
+  direction: ltr;
+  text-align: left;
+}
+
+.lowStockRow {
+  background: color-mix(in srgb, var(--color-warning, #f97316) 5%, transparent);
+}
+
+.stockCell {
+  color: var(--color-warning, #f97316);
+  font-weight: 700;
+}
+
+.entityCell {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.dateCell {
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.emptyRow {
+  text-align: center;
+  color: var(--muted);
+  padding: 40px 16px !important;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error {
+  text-align: center;
+  padding: 40px;
+  color: var(--error);
+  font-size: 15px;
+}
