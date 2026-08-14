@@ -45,3 +45,9 @@ next-env.d.ts
 
 # artifact metadata
 *.artifact.json
+
+# android gradle cache
+context/github/
+
+# generated status
+system/artifacts/.reconciliation-status.md
