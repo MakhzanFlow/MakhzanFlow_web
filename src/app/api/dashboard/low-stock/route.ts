@@ -15,14 +15,18 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url)
-    const page = searchParams.get('page') || '1'
-    const limit = searchParams.get('limit') || '20'
-    const search = searchParams.get('search') || ''
-    const sort = searchParams.get('sort') || 'name'
-    const order = searchParams.get('order') || 'asc'
+    const page = searchParams.get('page')
+    const limit = searchParams.get('limit')
+    const search = searchParams.get('search')
+    const sort = searchParams.get('sort')
+    const order = searchParams.get('order')
 
-    const query = new URLSearchParams({ page, limit, sort, order })
+    const query = new URLSearchParams()
+    if (page) query.set('page', page)
+    if (limit) query.set('limit', limit)
     if (search) query.set('search', search)
+    if (sort) query.set('sort', sort)
+    if (order) query.set('order', order)
 
     const data = await apiServer(`dashboard/low-stock?${query}`, { token, companyId })
     return NextResponse.json(data)

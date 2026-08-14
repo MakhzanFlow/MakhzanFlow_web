@@ -15,18 +15,26 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url)
-    const page = searchParams.get('page') || '1'
-    const limit = searchParams.get('limit') || '20'
-    const type = searchParams.get('type') || ''
-    const status = searchParams.get('status') || ''
-    const from = searchParams.get('from') || ''
-    const to = searchParams.get('to') || ''
+    const page = searchParams.get('page')
+    const limit = searchParams.get('limit')
+    const search = searchParams.get('search')
+    const status = searchParams.get('status')
+    const customer_id = searchParams.get('customer_id')
+    const start_date = searchParams.get('start_date')
+    const end_date = searchParams.get('end_date')
+    const sort = searchParams.get('sort')
+    const order = searchParams.get('order')
 
-    const query = new URLSearchParams({ page, limit })
-    if (type) query.set('type', type)
+    const query = new URLSearchParams()
+    if (page) query.set('page', page)
+    if (limit) query.set('limit', limit)
+    if (search) query.set('search', search)
     if (status) query.set('status', status)
-    if (from) query.set('from', from)
-    if (to) query.set('to', to)
+    if (customer_id) query.set('customer_id', customer_id)
+    if (start_date) query.set('start_date', start_date)
+    if (end_date) query.set('end_date', end_date)
+    if (sort) query.set('sort', sort)
+    if (order) query.set('order', order)
 
     const data = await apiServer(`invoices?${query}`, { token, companyId })
     return NextResponse.json(data)

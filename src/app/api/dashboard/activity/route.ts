@@ -15,10 +15,12 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url)
-    const page = searchParams.get('page') || '1'
-    const limit = searchParams.get('limit') || '20'
+    const page = searchParams.get('page')
+    const limit = searchParams.get('limit')
 
-    const query = new URLSearchParams({ page, limit })
+    const query = new URLSearchParams()
+    if (page) query.set('page', page)
+    if (limit) query.set('limit', limit)
 
     const data = await apiServer(`dashboard/activity?${query}`, { token, companyId })
     return NextResponse.json(data)

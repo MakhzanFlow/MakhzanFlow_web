@@ -15,11 +15,12 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url)
-    const months = searchParams.get('months') || '12'
-    const from = searchParams.get('from') || ''
-    const to = searchParams.get('to') || ''
+    const months = searchParams.get('months')
+    const from = searchParams.get('from')
+    const to = searchParams.get('to')
 
-    const query = new URLSearchParams({ months })
+    const query = new URLSearchParams()
+    if (months) query.set('months', months)
     if (from) query.set('from', from)
     if (to) query.set('to', to)
 
