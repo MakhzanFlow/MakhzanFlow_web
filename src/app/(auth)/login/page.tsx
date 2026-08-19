@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+import Icon from '@/components/Icon'
 import { useAuth } from '@/contexts/AuthContext'
 import styles from '../auth.module.css'
 
@@ -10,6 +10,7 @@ export default function LoginPage() {
   const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [pending, setPending] = useState(false)
 
@@ -27,57 +28,79 @@ export default function LoginPage() {
   }
 
   return (
-    <div className={styles.card}>
-      <div className={styles.header}>
-        <Link href="/" className={styles.logoLink}>
-          <Image src="/logos/stockflow-logo.png" alt="StockFlow" width={100} height={32} priority />
-        </Link>
-        <h1 className={styles.title}>مرحبا بعودتك</h1>
-        <p className={styles.subtitle}>
-         ليس لديك حساب؟{' '}
-          <Link href="/register" className={styles.link}>سجّل الآن</Link>
-        </p>
+    <div className={styles.screenInner}>
+      <Link href="/" className={styles.brandRow}>
+        <span className={styles.brandMark}>
+          <Icon name="box" />
+        </span>
+        <span className={styles.brandWord}>StockFlow</span>
+      </Link>
+
+      <div className={styles.card}>
+        <header className={styles.cardHead}>
+          <h1>مرحباً بعودتك</h1>
+          <p className={styles.sub}>
+            ليس لديك حساب؟ <Link href="/register">سجّل الآن</Link>
+          </p>
+        </header>
+
+        <form onSubmit={handleSubmit} className={styles.form}>
+          {error && (
+            <div className={`${styles.banner} ${styles.bannerError} ${styles.bannerShow}`}>
+              <Icon name="alert" />
+              {error}
+            </div>
+          )}
+
+          <div className={styles.field}>
+            <label htmlFor="email">البريد الإلكتروني</label>
+            <input
+              id="email"
+              type="email"
+              className={styles.input}
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              dir="ltr"
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label htmlFor="password">كلمة المرور</label>
+            <div className={styles.inputWrap}>
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                className={`${styles.input} ${styles.passwordInput}`}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+                dir="ltr"
+              />
+              <button
+                type="button"
+                className={styles.eye}
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور'}
+              >
+                <Icon name={showPassword ? 'eyeOff' : 'eye'} />
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" className={`${styles.btn} ${styles.btnPrimary} ${pending ? styles.isPending : ''}`} disabled={pending}>
+            <span className={styles.spinner} />
+            {pending ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
+          </button>
+        </form>
       </div>
 
-      <form onSubmit={handleSubmit} className={styles.form}>
-        {error && <div className={styles.error}>{error}</div>}
-
-        <div className={styles.field}>
-          <label htmlFor="email" className={styles.label}>البريد الإلكتروني</label>
-          <input
-            id="email"
-            type="email"
-            className={styles.input}
-            placeholder="name@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            dir="ltr"
-          />
-        </div>
-
-        <div className={styles.field}>
-          <label htmlFor="password" className={styles.label}>كلمة المرور</label>
-          <input
-            id="password"
-            type="password"
-            className={styles.input}
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            dir="ltr"
-          />
-        </div>
-
-        <button type="submit" className={styles.btn} disabled={pending}>
-          {pending ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
-        </button>
-      </form>
-
-      <p className={styles.footer}>
-        بالمتابعة، أنت توافق على{' '}
-        <Link href="/privacy" className={styles.link}>سياسة الخصوصية</Link>
+      <p className={styles.foot}>
+        بالمتابعة، أنت توافق على <Link href="/privacy">سياسة الخصوصية</Link>
       </p>
     </div>
   )

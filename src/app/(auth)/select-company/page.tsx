@@ -6,9 +6,9 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { parseApiResponse } from '@/lib/api-client'
+import Icon from '@/components/Icon'
 import type { Company } from '@/lib/types'
-import authStyles from '../auth.module.css'
-import styles from './page.module.css'
+import styles from '../auth.module.css'
 
 type Mode = 'pick' | 'create' | 'join'
 
@@ -129,11 +129,9 @@ export default function SelectCompanyPage() {
 
   if (loading || (user && companies === null && !fetchError)) {
     return (
-      <div className={styles.wrapper}>
-        <div className={authStyles.card}>
-          <div className={styles.loading}>
-            <div className={styles.spinner} />
-          </div>
+      <div className={`${styles.screenInner} ${styles.screenWide}`}>
+        <div className={`${styles.card} ${styles.loadingCard}`}>
+          <div className={styles.screenSpinner} />
         </div>
       </div>
     )
@@ -144,26 +142,29 @@ export default function SelectCompanyPage() {
   const hasCompanies = companies !== null && companies.length > 0
 
   return (
-    <div className={styles.wrapper}>
-      <div className={`${authStyles.card} ${styles.card}`}>
-        <header className={authStyles.header}>
-          <Link href="/" className={authStyles.logoLink}>
-            <span className={styles.logoMark}>م</span>
-          </Link>
-          <h1 className={authStyles.title}>مرحباً، {user.name}</h1>
-          <p className={authStyles.subtitle}>اختر شركة للمتابعة، أو أنشئ شركة جديدة</p>
+    <div className={`${styles.screenInner} ${styles.screenWide}`}>
+      <div className={styles.card}>
+        <header className={styles.companyGreet}>
+          <Link href="/" className={styles.companyLogo}>م</Link>
+          <div>
+            <h1>مرحباً، {user.name}</h1>
+            <p className={styles.sub}>اختر شركة للمتابعة، أو أنشئ شركة جديدة</p>
+          </div>
         </header>
 
         {fetchError && (
-          <div className={authStyles.error}>
-            {fetchError}
-            <button
-              type="button"
-              className={styles.retryLink}
-              onClick={() => { setFetchError(''); setCompanies(null) }}
-            >
-              إعادة المحاولة
-            </button>
+          <div className={`${styles.banner} ${styles.bannerError} ${styles.bannerShow}`}>
+            <Icon name="alert" />
+            <span>
+              {fetchError}
+              <button
+                type="button"
+                className={styles.textBtn}
+                onClick={() => { setFetchError(''); setCompanies(null) }}
+              >
+                إعادة المحاولة
+              </button>
+            </span>
           </div>
         )}
 
@@ -173,40 +174,52 @@ export default function SelectCompanyPage() {
               <button
                 key={company.id}
                 type="button"
-                className={styles.companyItem}
+                className={styles.companyRow}
                 onClick={() => selectCompany(company.id)}
               >
                 {company.logo_url ? (
-                  <Image
-                    src={company.logo_url}
-                    alt={company.name}
-                    width={40}
-                    height={40}
-                    className={styles.logo}
-                    unoptimized
-                  />
+                  <span className={styles.companyAvatar}>
+                    <Image
+                      src={company.logo_url}
+                      alt={company.name}
+                      width={40}
+                      height={40}
+                      unoptimized
+                    />
+                  </span>
                 ) : (
-                  <span className={styles.companyAvatar}>{company.name.charAt(0)}</span>
+                  <span
+                    className={styles.companyAvatar}
+                    style={{ backgroundColor: `hsl(${(company.name.charCodeAt(0) * 137) % 360} 32% 32%)` }}
+                  >
+                    {company.name.charAt(0)}
+                  </span>
                 )}
                 <span className={styles.companyName}>{company.name}</span>
-                <span className={styles.companyArrow}>←</span>
+                <Icon name="chevLeft" />
               </button>
             ))}
           </div>
         )}
 
         {!hasCompanies && mode === 'pick' && (
-          <p className={styles.noCompanies}>لا تملك أي شركة بعد — أنشئ شركتك الأولى أو انضم برمز دعوة.</p>
+          <p className={styles.emptyCompanies}>
+            لا تملك أي شركة بعد — أنشئ شركتك الأولى أو انضم برمز دعوة.
+          </p>
         )}
 
         {mode === 'pick' && (
           <div className={styles.actions}>
-            <button type="button" className={authStyles.btn} onClick={() => setMode('create')}>
+            <button
+              type="button"
+              className={`${styles.btn} ${styles.btnPrimary}`}
+              onClick={() => setMode('create')}
+            >
               إنشاء شركة جديدة
             </button>
             <button
               type="button"
-              className={authStyles.btnSecondary}
+              className={`${styles.btn} ${styles.btnSecondary}`}
               onClick={() => setMode('join')}
             >
               الانضمام برمز دعوة
@@ -215,35 +228,48 @@ export default function SelectCompanyPage() {
         )}
 
         {mode === 'create' && (
-          <form className={authStyles.form} onSubmit={handleCreate}>
-            <div className={authStyles.field}>
-              <label className={authStyles.label} htmlFor="company-name">اسم الشركة</label>
+          <form className={`${styles.form} ${styles.formMarginTop}`} onSubmit={handleCreate}>
+            <div className={styles.field}>
+              <label htmlFor="company-name">اسم الشركة</label>
               <input
                 id="company-name"
-                className={authStyles.input}
+                type="text"
+                className={styles.input}
                 value={createName}
                 onChange={(e) => setCreateName(e.target.value)}
                 placeholder="مثال: متجر النور"
                 required
               />
             </div>
-            {error && <div className={authStyles.error}>{error}</div>}
-            <button type="submit" className={authStyles.btn} disabled={submitting}>
-              {submitting ? 'جاري الإنشاء…' : 'إنشاء والمتابعة'}
+            {error && (
+              <div className={`${styles.banner} ${styles.bannerError} ${styles.bannerShow}`}>
+                <Icon name="alert" />
+                {error}
+              </div>
+            )}
+            <button type="submit" className={`${styles.btn} ${styles.btnPrimary} ${submitting ? styles.isPending : ''}`} disabled={submitting}>
+              <span className={styles.spinner} />
+              {submitting ? 'جاري الإنشاء...' : 'إنشاء والمتابعة'}
             </button>
-            <button type="button" className={authStyles.btnSecondary} onClick={() => { setMode('pick'); setError('') }} disabled={submitting}>
+            <button
+              type="button"
+              className={`${styles.btn} ${styles.btnSecondary}`}
+              onClick={() => { setMode('pick'); setError('') }}
+              disabled={submitting}
+            >
               رجوع
             </button>
           </form>
         )}
 
         {mode === 'join' && !joinPending && (
-          <form className={authStyles.form} onSubmit={handleLookup}>
-            <div className={authStyles.field}>
-              <label className={authStyles.label} htmlFor="invite-code">رمز الدعوة</label>
+          <form className={`${styles.form} ${styles.formMarginTop}`} onSubmit={handleLookup}>
+            <div className={styles.field}>
+              <label htmlFor="invite-code">رمز الدعوة</label>
               <input
                 id="invite-code"
-                className={authStyles.input}
+                type="text"
+                className={`${styles.input} ${styles.inputMono}`}
                 value={joinCode}
                 onChange={(e) => setJoinCode(e.target.value)}
                 placeholder="أدخل رمز الدعوة"
@@ -251,28 +277,47 @@ export default function SelectCompanyPage() {
                 dir="ltr"
               />
             </div>
-            {joinLookup && <div className={authStyles.success}>تم العثور على الشركة: {joinLookup}</div>}
-            {error && <div className={authStyles.error}>{error}</div>}
+            {joinLookup && (
+              <div className={`${styles.banner} ${styles.bannerSuccess} ${styles.bannerShow}`}>
+                <Icon name="check" />
+                تم العثور على الشركة: {joinLookup}
+              </div>
+            )}
+            {error && (
+              <div className={`${styles.banner} ${styles.bannerError} ${styles.bannerShow}`}>
+                <Icon name="alert" />
+                {error}
+              </div>
+            )}
             <button
               type="button"
-              className={authStyles.btn}
+              className={`${styles.btn} ${styles.btnPrimary} ${submitting ? styles.isPending : ''}`}
               disabled={submitting || !joinCode.trim()}
               onClick={handleJoin}
             >
-              {submitting ? 'جاري الإرسال…' : joinLookup ? 'تأكيد الانضمام' : 'إرسال طلب الانضمام'}
+              <span className={styles.spinner} />
+              {submitting ? 'جاري الإرسال...' : joinLookup ? 'تأكيد الانضمام' : 'إرسال طلب الانضمام'}
             </button>
-            <button type="button" className={authStyles.btnSecondary} onClick={() => { setMode('pick'); setError(''); setJoinLookup(null) }} disabled={submitting}>
+            <button
+              type="button"
+              className={`${styles.btn} ${styles.btnSecondary}`}
+              onClick={() => { setMode('pick'); setError(''); setJoinLookup(null) }}
+              disabled={submitting}
+            >
               رجوع
             </button>
           </form>
         )}
 
         {joinPending && (
-          <div className={authStyles.success}>{success}</div>
+          <div className={`${styles.banner} ${styles.bannerSuccess} ${styles.bannerShow} ${styles.formMarginTop}`}>
+            <Icon name="check" />
+            {success}
+          </div>
         )}
 
-        <footer className={authStyles.footer}>
-          <button type="button" className={styles.logout} onClick={logout}>
+        <footer className={styles.foot}>
+          <button type="button" className={styles.textBtn} onClick={logout}>
             تسجيل الخروج
           </button>
         </footer>

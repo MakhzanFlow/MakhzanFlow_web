@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
+import Icon from '@/components/Icon'
 import { useAuth } from '@/contexts/AuthContext'
 import styles from '../auth.module.css'
 
@@ -47,63 +47,88 @@ export default function VerifyEmailPage() {
   }
 
   return (
-    <div className={styles.card}>
-      <div className={styles.header}>
-        <Link href="/" className={styles.logoLink}>
-          <Image src="/logos/stockflow-logo.png" alt="StockFlow" width={100} height={32} priority />
-        </Link>
-        <h1 className={styles.title}>تحقق من بريدك</h1>
-        <p className={styles.subtitle}>
-          أدخل رمز التكون المكون من 6 أرقام المرسل إلى بريدك الإلكتروني
+    <div className={styles.screenInner}>
+      <Link href="/" className={styles.brandRow}>
+        <span className={styles.brandMark}>
+          <Icon name="box" />
+        </span>
+        <span className={styles.brandWord}>StockFlow</span>
+      </Link>
+
+      <div className={styles.card}>
+        <header className={styles.cardHead}>
+          <h1>تحقق من بريدك</h1>
+          <p className={styles.sub}>
+            أدخل رمز التحقق المكوّن من 6 أرقام المرسل إلى بريدك الإلكتروني
+          </p>
+        </header>
+
+        <form onSubmit={handleSubmit} className={styles.form}>
+          {error && (
+            <div className={`${styles.banner} ${styles.bannerError} ${styles.bannerShow}`}>
+              <Icon name="alert" />
+              {error}
+            </div>
+          )}
+          {success && (
+            <div className={`${styles.banner} ${styles.bannerSuccess} ${styles.bannerShow}`}>
+              <Icon name="check" />
+              {success}
+            </div>
+          )}
+
+          <div className={styles.field}>
+            <label htmlFor="email">البريد الإلكتروني</label>
+            <input
+              id="email"
+              type="email"
+              className={styles.input}
+              placeholder="name@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              dir="ltr"
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label htmlFor="token">رمز التحقق</label>
+            <input
+              id="token"
+              type="text"
+              inputMode="numeric"
+              className={`${styles.input} ${styles.inputOtp}`}
+              placeholder="••••••"
+              value={token}
+              onChange={(e) => setToken(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              required
+              maxLength={6}
+              autoComplete="one-time-code"
+              dir="ltr"
+            />
+          </div>
+
+          <button type="submit" className={`${styles.btn} ${styles.btnPrimary} ${pending ? styles.isPending : ''}`} disabled={pending}>
+            <span className={styles.spinner} />
+            {pending ? 'جاري التحقق...' : 'تحقق'}
+          </button>
+
+          <button
+            type="button"
+            className={`${styles.btn} ${styles.btnSecondary} ${resendPending ? styles.isPending : ''}`}
+            onClick={handleResend}
+            disabled={resendPending}
+          >
+            <span className={styles.spinner} />
+            {resendPending ? 'جاري الإرسال...' : 'إعادة إرسال الرمز'}
+          </button>
+        </form>
+
+        <p className={styles.foot}>
+          <Link href="/login">العودة لتسجيل الدخول</Link>
         </p>
       </div>
-
-      <form onSubmit={handleSubmit} className={styles.form}>
-        {error && <div className={styles.error}>{error}</div>}
-        {success && <div className={styles.success}>{success}</div>}
-
-        <div className={styles.field}>
-          <label htmlFor="email" className={styles.label}>البريد الإلكتروني</label>
-          <input
-            id="email"
-            type="email"
-            className={styles.input}
-            placeholder="name@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            dir="ltr"
-          />
-        </div>
-
-        <div className={styles.field}>
-          <label htmlFor="token" className={styles.label}>رمز التحقق</label>
-          <input
-            id="token"
-            type="text"
-            className={styles.input}
-            placeholder="482901"
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            required
-            maxLength={6}
-            dir="ltr"
-            style={{ letterSpacing: '0.3em', textAlign: 'center', fontSize: '20px' }}
-          />
-        </div>
-
-        <button type="submit" className={styles.btn} disabled={pending}>
-          {pending ? 'جاري التحقق...' : 'تحقق'}
-        </button>
-
-        <button type="button" className={styles.btnSecondary} onClick={handleResend} disabled={resendPending}>
-          {resendPending ? 'جاري الإرسال...' : 'إعادة إرسال الرمز'}
-        </button>
-      </form>
-
-      <p className={styles.footer}>
-        <Link href="/login" className={styles.link}>العودة لتسجيل الدخول</Link>
-      </p>
     </div>
   )
 }

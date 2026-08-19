@@ -1,168 +1,329 @@
+/* ============================================================
+   StockFlow — auth & onboarding screens
+   Ported from Open Design "StockFlow Auth UI"
+   ============================================================ */
+
+/* ---------- Screen scaffolding ---------- */
+.screen {
+  min-height: 100dvh;
+  display: flex;
+  padding: 48px 16px;
+  background:
+    radial-gradient(46rem 28rem at 50% 34%, rgba(15, 81, 50, .06), transparent 68%),
+    var(--bg);
+}
+
+.screenInner { margin: auto; width: 100%; max-width: 440px; }
+.screenInner.screenWide { max-width: 520px; }
+
+.loadingCard {
+  display: grid;
+  place-items: center;
+  padding: 48px;
+}
+
+.screenSpinner {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  animation: spin .7s linear infinite;
+}
+
+/* ---------- Brand row ---------- */
+.brandRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  text-decoration: none;
+}
+
+.brandMark {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--accent);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 20px -10px rgba(15, 81, 50, .55);
+}
+
+.brandMark svg { width: 26px; height: 26px; }
+
+.brandWord {
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: -.01em;
+  color: var(--accent);
+}
+
+/* ---------- Card ---------- */
 .card {
-  width: 100%;
-  max-width: 400px;
   background: var(--surface);
-  border-radius: var(--radius-lg);
-  padding: 40px 32px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
   border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: clamp(24px, 5vw, 40px);
 }
 
-.header {
+.cardHead { margin-bottom: 24px; }
+.cardHead h1 { font-size: 26px; font-weight: 700; line-height: 1.35; margin: 0; }
+.cardHead .sub { margin-top: 8px; font-size: 15px; color: var(--muted); line-height: 1.8; }
+.cardHead .sub a { color: var(--accent); font-weight: 600; text-decoration: none; transition: color .2s; }
+.cardHead .sub a:hover { text-decoration: underline; }
+
+/* ---------- Greeting header (select company) ---------- */
+.companyGreet { display: flex; align-items: center; gap: 14px; margin-bottom: 22px; }
+.companyGreet h1 { font-size: 24px; font-weight: 700; line-height: 1.4; margin: 0; }
+.companyGreet .sub { margin-top: 4px; font-size: 14px; color: var(--muted); line-height: 1.7; }
+
+.companyLogo {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  flex: none;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 20px;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 8px 16px -8px rgba(15, 81, 50, .5);
+  text-decoration: none;
+}
+
+/* ---------- Banners ---------- */
+.banner {
+  display: none;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.65;
+}
+
+.bannerShow { display: flex; animation: bannerIn .3s ease; }
+.banner svg { width: 18px; height: 18px; flex: none; margin-top: 2px; }
+.bannerError { background: var(--red-soft); color: var(--red); }
+.bannerSuccess { background: var(--green-soft); color: var(--accent); }
+.banner + .field,
+.banner + .banner { margin-top: 18px; }
+
+@keyframes bannerIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------- Forms ---------- */
+.form { display: flex; flex-direction: column; gap: 18px; }
+.formMarginTop { margin-top: 18px; }
+
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field label { font-size: 14px; font-weight: 600; color: var(--fg); }
+
+.inputWrap { position: relative; }
+
+.input {
+  width: 100%;
+  height: 52px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--fg);
+  transition: border-color .2s, box-shadow .2s, background-color .2s;
+}
+
+.input::placeholder { color: var(--muted); }
+.input:hover { border-color: color-mix(in srgb, var(--muted) 40%, var(--border)); }
+.input:focus { outline: none; border-color: var(--accent); box-shadow: var(--ring); }
+.input[dir='ltr'] { text-align: right; }
+
+.passwordInput { padding-left: 52px; }
+
+.inputOtp {
+  height: 64px;
   text-align: center;
-  margin-bottom: 32px;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: .42em;
+  padding: 0 10px;
+  font-family: var(--font-mono);
 }
 
-.logoLink {
+.inputMono {
+  font-family: var(--font-mono);
+  letter-spacing: .04em;
+}
+
+/* ---------- Password eye toggle ---------- */
+.eye {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 6px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: var(--muted);
+  transition: background-color .2s, color .2s;
+}
+
+.eye svg { width: 20px; height: 20px; }
+.eye:hover { background: var(--bg); color: var(--fg); }
+
+/* ---------- Buttons ---------- */
+.btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 16px;
-}
-
-.title {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--fg);
-  margin: 0 0 8px;
-}
-
-.subtitle {
-  font-size: 14px;
-  color: var(--muted);
-  margin: 0;
-}
-
-.link {
-  color: var(--accent);
-  font-weight: 600;
-  transition: color 0.15s;
-}
-
-.link:hover {
-  color: color-mix(in srgb, var(--accent) 80%, black);
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--fg);
-}
-
-.input {
-  height: 44px;
-  padding: 0 14px;
-  font-family: var(--font-body);
-  font-size: 15px;
-  color: var(--fg);
-  background: var(--surface);
-  border: 1px solid var(--border);
+  gap: 10px;
+  width: 100%;
+  border: 0;
   border-radius: var(--radius-sm);
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-bg);
-}
-
-.input::placeholder {
-  color: color-mix(in srgb, var(--muted) 60%, transparent);
-}
-
-.btn {
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-family: var(--font-body);
+  font-size: 16px;
   font-weight: 600;
-  font-size: 15px;
-  color: #fff;
-  background: var(--accent);
-  border: 1px solid var(--accent);
-  border-radius: var(--radius);
+  color: var(--fg);
   cursor: pointer;
-  transition: filter 0.15s;
-  margin-top: 8px;
+  transition: background-color .2s, color .2s, border-color .2s, box-shadow .2s;
 }
 
-.btn:hover:not(:disabled) {
-  filter: brightness(1.12);
+.btnPrimary {
+  background: var(--accent);
+  color: #fff;
+  min-height: 56px;
 }
 
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+.btnPrimary:hover { background: var(--accent-dark); }
+.btnPrimary:active { background: var(--accent-deep); }
 
 .btnSecondary {
-  height: 44px;
+  background: var(--surface);
+  color: var(--fg);
+  min-height: 48px;
+  border: 1px solid var(--border);
+}
+
+.btnSecondary:hover { background: var(--accent-bg); border-color: var(--accent-border); }
+
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+
+.spinner {
+  display: none;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, .35);
+  border-top-color: #fff;
+  animation: spin .7s linear infinite;
+}
+
+.btnSecondary .spinner { border-color: rgba(15, 81, 50, .25); border-top-color: var(--accent); }
+.isPending .spinner { display: inline-block; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.textBtn {
+  background: none;
+  border: 0;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color .2s;
+}
+
+.textBtn:hover { color: var(--accent-dark); }
+
+/* ---------- Footer ---------- */
+.foot { margin-top: 24px; text-align: center; font-size: 13px; color: var(--muted); line-height: 1.8; }
+.foot a { color: var(--accent); font-weight: 600; text-decoration: none; transition: color .2s; }
+.foot a:hover { text-decoration: underline; }
+
+/* ---------- Company list & modes ---------- */
+.companyList { display: flex; flex-direction: column; gap: 10px; }
+
+.companyRow {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--muted);
-  background: transparent;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 14px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: 16px;
+  background: var(--surface);
   cursor: pointer;
-  transition: all 0.15s;
+  font-family: var(--font-body);
+  font-size: 15px;
+  text-align: right;
+  transition: background-color .2s, border-color .2s;
 }
 
-.btnSecondary:hover:not(:disabled) {
-  border-color: var(--muted);
-  color: var(--fg);
+.companyRow:hover { background: var(--bg); border-color: var(--accent-border); }
+
+.companyAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 17px;
 }
 
-.btnSecondary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+.companyAvatar img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
 
-.error {
-  padding: 12px 14px;
-  font-size: 13px;
-  color: var(--error);
-  background: var(--error-bg);
-  border-radius: var(--radius-sm);
-  border: 1px solid color-mix(in srgb, var(--error) 20%, transparent);
-}
+.companyName { flex: 1; font-weight: 600; color: var(--fg); text-align: right; }
+.companyRow > svg { width: 20px; height: 20px; flex: none; color: var(--muted); }
 
-.success {
-  padding: 12px 14px;
-  font-size: 13px;
-  color: var(--success);
-  background: var(--success-bg);
-  border-radius: var(--radius-sm);
-  border: 1px solid color-mix(in srgb, var(--success) 20%, transparent);
-}
-
-.footer {
+.emptyCompanies {
+  padding: 20px;
   text-align: center;
-  font-size: 13px;
+  border: 1px dashed var(--border);
+  border-radius: 16px;
+  background: var(--bg);
   color: var(--muted);
-  margin-top: 24px;
+  font-size: 14px;
+  line-height: 1.7;
 }
 
-@media (max-width: 480px) {
-  .card {
-    padding: 32px 20px;
+.actions { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+
+.modePanel { display: block; }
+.modePanelHidden { display: none; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 420px) {
+  .screen { padding: 32px 16px; }
+  .cardHead h1 { font-size: 23px; }
+  .cardHead .sub { font-size: 14px; }
+  .companyGreet h1 { font-size: 21px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen *, .screen *::before, .screen *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
   }
 }
