@@ -37,11 +37,11 @@ export function SalesChart({ data }: { data: SalesPoint[] }) {
   if (data.length === 0) return null
 
   return (
-    <div className={styles.chartCard}>
-      <header className={styles.chartHeader}>
+    <div className={styles.card}>
+      <header className={styles.cardHead}>
         <div>
-          <h2 className={styles.chartTitle}>مبيعات الأسبوع</h2>
-          <p className={styles.chartSubtitle}>إجمالي المبيعات اليومية</p>
+          <div className={styles.cardTitle}>مبيعات الأسبوع</div>
+          <div className={styles.cardSub}>إجمالي المبيعات اليومية</div>
         </div>
         <div className={styles.rangeTabs} role="group" aria-label="اختر الفترة">
           {RANGES.map((r) => (

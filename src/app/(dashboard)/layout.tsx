@@ -4,16 +4,17 @@ import { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
+import Icon from '@/components/Icon'
 import styles from './dashboard/dashboard.module.css'
 
 const navItems = [
-  { href: '/dashboard', label: 'لوحة التحكم', icon: '📊' },
-  { href: '/products', label: 'المنتجات', icon: '📦' },
-  { href: '/customers', label: 'العملاء', icon: '👥' },
-  { href: '/invoices', label: 'الفواتير', icon: '📄' },
-  { href: '/payments', label: 'المدفوعات', icon: '💰' },
-  { href: '/reports', label: 'التقارير', icon: '📈' },
-]
+  { href: '/dashboard', label: 'لوحة التحكم', icon: 'dashboard' },
+  { href: '/products', label: 'المنتجات', icon: 'products' },
+  { href: '/customers', label: 'العملاء', icon: 'customers' },
+  { href: '/invoices', label: 'الفواتير', icon: 'invoices' },
+  { href: '/payments', label: 'المدفوعات', icon: 'payments' },
+  { href: '/reports', label: 'التقارير', icon: 'reports' },
+] as const
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, companyId, loading, logout, clearCompany } = useAuth()
@@ -32,50 +33,87 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (loading) {
     return (
-      <div className={styles.loading}>
+      <div className={styles.pageLoading}>
         <div className={styles.spinner} />
       </div>
     )
   }
 
-  if (!user) return null
+  if (!user) {
+    return (
+      <div className={styles.pageLoading}>
+        <div className={styles.spinner} />
+      </div>
+    )
+  }
 
   return (
     <div className={styles.layout}>
-      <aside className={styles.sidebar}>
-        <div className={styles.sidebarHeader}>
-          <Link href="/dashboard" className={styles.logo}>StockFlow</Link>
-        </div>
-
-        <nav className={styles.nav}>
+      <header className={styles.mnav}>
+        <span className={styles.brandMark}>
+          <Icon name="box" size={20} />
+        </span>
+        <span className={styles.brandName}>StockFlow</span>
+        <nav className={styles.mnavScroll}>
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className={`${styles.navItem} ${pathname === item.href ? styles.navItemActive : ''}`}
             >
-              <span className={styles.navIcon}>{item.icon}</span>
               {item.label}
             </Link>
           ))}
         </nav>
+      </header>
 
-        <div className={styles.sidebarFooter}>
-          <button onClick={clearCompany} className={styles.switchCompany}>
-            تبديل الشركة
+      <aside className={styles.sidebar}>
+        <div className={styles.brand}>
+          <span className={styles.brandMark}>
+            <Icon name="box" size={22} />
+          </span>
+          <span className={styles.brandName}>
+            StockFlow<small>نظام إدارة المخازن</small>
+          </span>
+        </div>
+
+        <nav className={styles.sideNav}>
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`${styles.navItem} ${pathname === item.href ? styles.navItemActive : ''}`}
+            >
+              <Icon name={item.icon} size={20} />
+              <span>{item.label}</span>
+            </Link>
+          ))}
+        </nav>
+
+        <div className={styles.sideFoot}>
+          <button onClick={clearCompany} className={styles.companySwitch}>
+            <Icon name="switch" size={20} />
+            <span className={styles.switchLabel}>تبديل الشركة</span>
+            <Icon name="chevDown" size={16} className={styles.chev} />
           </button>
-          <div className={styles.userInfo}>
-            <div className={styles.avatar}>{user.name.charAt(0)}</div>
-            <div className={styles.userDetails}>
-              <span className={styles.userName}>{user.name}</span>
-              <span className={styles.userEmail}>{user.email}</span>
-            </div>
+          <div className={styles.userRow}>
+            <span className={styles.avatar}>{user.name.charAt(0)}</span>
+            <span className={styles.userCopy}>
+              <b>{user.name}</b>
+              <small>{user.email}</small>
+            </span>
+            <button
+              onClick={logout}
+              className={`${styles.iconBtn} ${styles.iconBtnDanger}`}
+              aria-label="خروج"
+              title="خروج"
+            >
+              <Icon name="logout" size={19} />
+            </button>
           </div>
-          <button onClick={logout} className={styles.logoutBtn}>
-            خروج
-          </button>
         </div>
       </aside>
+
       <main className={styles.main}>{children}</main>
     </div>
   )
