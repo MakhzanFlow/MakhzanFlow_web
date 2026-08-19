@@ -148,6 +148,30 @@ export interface Payment {
   created_at: string
 }
 
+export interface InvoiceListItem {
+  id: string
+  company_id: string
+  customer_id: string | null
+  invoice_number: string
+  status: string
+  total_amount: number
+  discount_amount: number
+  tax_amount: number
+  due_date: string | null
+  created_at: string
+  updated_at: string
+  customers: { id: string; name: string } | null
+  payments: {
+    id: string
+    invoice_id: string
+    amount: number
+    method: string
+    reference_number: string | null
+    notes: string | null
+    created_at: string
+  }[]
+}
+
 export interface JoinRequest {
   id: string
   company_id: string

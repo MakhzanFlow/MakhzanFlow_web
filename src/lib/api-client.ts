@@ -1,5 +1,9 @@
 import type { ApiResponse } from './types'
 
+export interface ApiResult<T> extends ApiResponse<T> {
+  pagination?: { page: number; limit: number; total: number; pages: number }
+}
+
 const ACCESS_KEY = 'mf_access_token'
 const REFRESH_KEY = 'mf_refresh_token'
 
@@ -29,9 +33,15 @@ export function isLoggedIn(): boolean {
   return !!getAccessToken()
 }
 
-export async function parseApiResponse<T = unknown>(res: Response): Promise<ApiResponse<T>> {
+export function getCompanyId(): string | null {
+  if (typeof window === 'undefined') return null
+  const match = document.cookie.match(/(?:^|; )mf_company_id=([^;]*)/)
+  return match ? decodeURIComponent(match[1]) : null
+}
+
+export async function parseApiResponse<T = unknown>(res: Response): Promise<ApiResult<T>> {
   const text = await res.text()
-  let data: ApiResponse<T>
+  let data: ApiResult<T>
   try {
     data = JSON.parse(text)
   } catch {
@@ -71,13 +81,18 @@ export async function apiClient<T>(
   endpoint: string,
   options: RequestInit = {},
   retryCount = 0
-): Promise<ApiResponse<T>> {
+): Promise<ApiResult<T>> {
   const headers = new Headers(options.headers)
   headers.set('Content-Type', 'application/json')
 
   const token = getAccessToken()
   if (token) {
     headers.set('Authorization', `Bearer ${token}`)
+  }
+
+  const companyId = getCompanyId()
+  if (companyId) {
+    headers.set('X-Company-Id', companyId)
   }
 
   const res = await fetch(`/api${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`, {

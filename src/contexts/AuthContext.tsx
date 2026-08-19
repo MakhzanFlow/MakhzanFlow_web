@@ -47,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const token = localStorage.getItem('mf_access_token')
     if (!token) {
-      setLoading(false)
+      fetch('/api/auth/logout', { method: 'POST' }).catch(() => {}).finally(() => setLoading(false))
       return
     }
 
@@ -57,10 +57,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(data.data)
         } else {
           clearTokens()
+          fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
         }
       })
       .catch(() => {
         clearTokens()
+        fetch('/api/auth/logout', { method: 'POST' }).catch(() => {})
       })
       .finally(() => setLoading(false))
   }, [])
