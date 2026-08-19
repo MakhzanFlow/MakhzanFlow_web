@@ -125,7 +125,10 @@ export async function apiClient<T>(
   const data = await parseApiResponse<T>(res)
 
   if (!res.ok) {
-    throw { status: res.status, ...data }
+    const error = new Error(data.message || `Request failed with status ${res.status}`)
+    ;(error as Error & { status?: number; data?: unknown }).status = res.status
+    ;(error as Error & { status?: number; data?: unknown }).data = data
+    throw error
   }
 
   return data

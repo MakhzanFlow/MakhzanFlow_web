@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import Icon from '@/components/Icon'
@@ -10,24 +10,20 @@ import styles from '../auth.module.css'
 export default function VerifyEmailPage() {
   const { verifyEmail, resendVerification } = useAuth()
   const searchParams = useSearchParams()
-  const [email, setEmail] = useState('')
-  const [token, setToken] = useState('')
+  const initialEmail = searchParams.get('email') ?? ''
+  const email = initialEmail
+  const [otp, setOtp] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [pending, setPending] = useState(false)
   const [resendPending, setResendPending] = useState(false)
-
-  useEffect(() => {
-    const qEmail = searchParams.get('email')
-    if (qEmail) setEmail(qEmail)
-  }, [searchParams])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
     setPending(true)
     try {
-      await verifyEmail(email, token)
+      await verifyEmail(email, otp)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Verification failed')
     } finally {
@@ -107,8 +103,8 @@ export default function VerifyEmailPage() {
               inputMode="numeric"
               className={`${styles.input} ${styles.inputOtp}`}
               placeholder="••••••"
-              value={token}
-              onChange={(e) => setToken(e.target.value.replace(/\D/g, '').slice(0, 6))}
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
               required
               maxLength={6}
               autoComplete="one-time-code"

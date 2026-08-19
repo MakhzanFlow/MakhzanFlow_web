@@ -102,8 +102,9 @@ export interface Customer {
   phone: string | null
   email: string | null
   address: string | null
-  notes: string | null
-  total_debt: number
+  opening_balance: number
+  image_url: string | null
+  current_debt: number
   company_id: string
   created_at: string
   updated_at: string

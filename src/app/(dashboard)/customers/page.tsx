@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState, useCallback, type FormEvent } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { apiClient } from '@/lib/api-client'
 import Icon from '@/components/Icon'
@@ -12,12 +12,23 @@ interface CustomerForm {
   name: string
   phone: string
   email: string
+  address: string
+  openingBalance: string
 }
 
-const emptyForm: CustomerForm = { name: '', phone: '', email: '' }
+const emptyForm: CustomerForm = { name: '', phone: '', email: '', address: '', openingBalance: '' }
+
+function parseAmount(value: string): number {
+  const normalized = value
+    .trim()
+    .replace(/,/g, '')
+    .replace(/[٠-٩]/g, (d) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+  const n = parseFloat(normalized)
+  return Number.isFinite(n) ? n : 0
+}
 
 export default function CustomersPage() {
-  const { companyId } = useAuth()
+  const { companyId, hasPermission } = useAuth()
   const { toast } = useToast()
   const [customers, setCustomers] = useState<Customer[]>([])
   const [loading, setLoading] = useState(true)
@@ -29,8 +40,16 @@ export default function CustomersPage() {
   const [modalOpen, setModalOpen] = useState(false)
   const [modalTitle, setModalTitle] = useState('عميل جديد')
   const [form, setForm] = useState<CustomerForm>(emptyForm)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
-  useEffect(() => {
+  const canCreate = hasPermission('customers.create')
+  const canUpdate = hasPermission('customers.update')
+  const canDelete = hasPermission('customers.delete')
+
+  const fetchCustomers = useCallback(() => {
     if (!companyId) return
     let cancelled = false
 
@@ -51,14 +70,27 @@ export default function CustomersPage() {
     return () => { cancelled = true }
   }, [companyId, page, search])
 
+  useEffect(() => {
+    const cleanup = fetchCustomers()
+    return () => { cleanup?.() }
+  }, [fetchCustomers])
+
   const openNew = () => {
     setForm(emptyForm)
+    setEditingId(null)
     setModalTitle('عميل جديد')
     setModalOpen(true)
   }
 
   const openEdit = (c: Customer) => {
-    setForm({ name: c.name, phone: c.phone ?? '', email: c.email ?? '' })
+    setForm({
+      name: c.name,
+      phone: c.phone ?? '',
+      email: c.email ?? '',
+      address: c.address ?? '',
+      openingBalance: '',
+    })
+    setEditingId(c.id)
     setModalTitle('تعديل العميل')
     setModalOpen(true)
   }
@@ -66,17 +98,90 @@ export default function CustomersPage() {
   const closeModal = () => {
     setModalOpen(false)
     setForm(emptyForm)
+    setEditingId(null)
+    setError('')
   }
 
-  const handleSave = (e: FormEvent) => {
+  const handleSave = async (e: FormEvent) => {
     e.preventDefault()
-    closeModal()
-    toast('تم الحفظ بنجاح', 'success')
+    setSaving(true)
+    setError('')
+
+    const payload: Record<string, unknown> = {
+      name: form.name.trim(),
+      phone: form.phone.trim() || null,
+      email: form.email.trim() || null,
+      address: form.address.trim() || null,
+    }
+
+    if (!editingId && form.openingBalance.trim()) {
+      payload.opening_balance = parseAmount(form.openingBalance)
+    }
+
+    try {
+      if (editingId) {
+        const data = await apiClient<Customer>(`/customers/${editingId}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload),
+        })
+        if (!data.success) throw new Error(data.message || 'Failed to update customer')
+        if (data.data) {
+          setCustomers((prev) => prev.map((c) => (c.id === editingId ? { ...c, ...data.data } : c)))
+        }
+        toast('تم تحديث العميل بنجاح', 'success')
+      } else {
+        const data = await apiClient<Customer>('/customers', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        })
+        if (!data.success) throw new Error(data.message || 'Failed to create customer')
+        if (data.data) {
+          setCustomers((prev) => [data.data!, ...prev])
+        }
+        toast('تم إنشاء العميل بنجاح', 'success')
+      }
+      closeModal()
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'حدث خطأ'
+      if (msg.includes('already exists') || msg.includes('مكرر') || msg.includes('duplicate') || msg.includes('Duplicate')) {
+        setError('العميل موجود مسبقاً')
+      } else if (msg.includes('permission') || msg.includes('Forbidden') || msg.includes('403')) {
+        setError('لا تملك صلاحية للقيام بهذا الإجراء')
+      } else {
+        setError(msg)
+      }
+    } finally {
+      setSaving(false)
+    }
   }
 
-  const handleDelete = (id: string) => {
-    setCustomers((prev) => prev.filter((c) => c.id !== id))
-    toast('تم الحذف', 'success')
+  const handleDelete = async (id: string) => {
+    setDeleteId(id)
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteId || deleting) return
+    setDeleting(true)
+    try {
+      const data = await apiClient(`/customers/${deleteId}`, {
+        method: 'DELETE',
+      })
+      if (!data.success) throw new Error(data.message || 'Failed to delete customer')
+      setCustomers((prev) => prev.filter((c) => c.id !== deleteId))
+      toast('تم حذف العميل بنجاح', 'success')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'حدث خطأ'
+      if (msg.includes('invoice') || msg.includes('referenced')) {
+        toast('لا يمكن حذف العميل لأنه مرتبط بفواتير', 'error')
+      } else if (msg.includes('permission') || msg.includes('Forbidden') || msg.includes('403')) {
+        toast('لا تملك صلاحية لحذف هذا العميل', 'error')
+      } else {
+        toast(msg, 'error')
+      }
+    } finally {
+      setDeleting(false)
+      setDeleteId(null)
+    }
   }
 
   return (
@@ -86,10 +191,12 @@ export default function CustomersPage() {
           <h1>العملاء</h1>
           <p>تتبع ديون عملائك وفواتيرهم في مكان واحد</p>
         </div>
-        <button type="button" className={`${styles.btn} ${styles.btnPrimary}`} onClick={openNew}>
-          <Icon name="plus" size={18} />
-          عميل جديد
-        </button>
+        {canCreate && (
+          <button type="button" className={`${styles.btn} ${styles.btnPrimary}`} onClick={openNew}>
+            <Icon name="plus" size={18} />
+            عميل جديد
+          </button>
+        )}
       </header>
 
       <div className={styles.screenBody}>
@@ -134,44 +241,50 @@ export default function CustomersPage() {
                     <th>الهاتف</th>
                     <th>البريد</th>
                     <th>الديون</th>
-                    <th>إجراءات</th>
+                    {(canUpdate || canDelete) && <th>إجراءات</th>}
                   </tr>
                 </thead>
                 <tbody>
                   {customers.map((c) => {
-                    const hasDebt = c.total_debt > 0
+                    const hasDebt = c.current_debt > 0
                     return (
                       <tr key={c.id} className={hasDebt ? styles.rowAlert : ''}>
                         <td className={styles.nameCell}>{c.name}</td>
-                        <td className={`${styles.mono}`} dir="ltr">{c.phone || '-'}</td>
-                        <td className={styles.muted} dir="ltr">{c.email || '-'}</td>
+                        <td className={styles.skuCell} dir="ltr">{c.phone || '—'}</td>
+                        <td className={styles.muted} dir="ltr">{c.email || '—'}</td>
                         <td>
                           {hasDebt ? (
                             <span className={`${styles.chip} ${styles.chipRed}`}>
-                              {c.total_debt.toLocaleString('ar-EG')} ج.م
+                              {c.current_debt.toLocaleString('ar-EG')} ج.م
                             </span>
                           ) : (
                             <span className={styles.numCell}>٠</span>
                           )}
                         </td>
-                        <td>
-                          <div className={styles.cellActions}>
-                            <button
-                              type="button"
-                              className={`${styles.btn} ${styles.btnGhost} ${styles.btnSm}`}
-                              onClick={() => openEdit(c)}
-                            >
-                              تعديل
-                            </button>
-                            <button
-                              type="button"
-                              className={`${styles.btn} ${styles.btnDanger} ${styles.btnSm}`}
-                              onClick={() => handleDelete(c.id)}
-                            >
-                              حذف
-                            </button>
-                          </div>
-                        </td>
+                        {(canUpdate || canDelete) && (
+                          <td>
+                            <div className={styles.cellActions}>
+                              {canUpdate && (
+                                <button
+                                  type="button"
+                                  className={`${styles.btn} ${styles.btnGhost} ${styles.btnSm}`}
+                                  onClick={() => openEdit(c)}
+                                >
+                                  تعديل
+                                </button>
+                              )}
+                              {canDelete && (
+                                <button
+                                  type="button"
+                                  className={`${styles.btn} ${styles.btnDanger} ${styles.btnSm}`}
+                                  onClick={() => handleDelete(c.id)}
+                                >
+                                  حذف
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        )}
                       </tr>
                     )
                   })}
@@ -217,6 +330,11 @@ export default function CustomersPage() {
               </button>
             </header>
             <div className={styles.modalBody}>
+              {error && (
+                <div className={styles.errorBox}>
+                  {error}
+                </div>
+              )}
               <div className={styles.formGrid}>
                 <div className={`${styles.field} ${styles.fieldFull}`}>
                   <label>الاسم <span className={styles.req}>*</span></label>
@@ -229,18 +347,17 @@ export default function CustomersPage() {
                   />
                 </div>
                 <div className={`${styles.field} ${styles.fieldFull}`}>
-                  <label>الهاتف <span className={styles.req}>*</span></label>
+                  <label>الهاتف</label>
                   <input
                     type="text"
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
                     placeholder="٠١٢٣٤٥٦٧٨٩٠"
                     dir="ltr"
-                    required
                   />
                 </div>
                 <div className={`${styles.field} ${styles.fieldFull}`}>
-                  <label>البريد</label>
+                  <label>البريد الإلكتروني</label>
                   <input
                     type="email"
                     value={form.email}
@@ -249,17 +366,65 @@ export default function CustomersPage() {
                     dir="ltr"
                   />
                 </div>
+                <div className={`${styles.field} ${styles.fieldFull}`}>
+                  <label>العنوان</label>
+                  <input
+                    type="text"
+                    value={form.address}
+                    onChange={(e) => setForm({ ...form, address: e.target.value })}
+                    placeholder="العنوان (اختياري)"
+                  />
+                </div>
+                {!editingId && (
+                  <div className={`${styles.field} ${styles.fieldFull}`}>
+                    <label>الرصيد الافتتاحي (ج.م)</label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={form.openingBalance}
+                      onChange={(e) => setForm({ ...form, openingBalance: e.target.value })}
+                      placeholder="٠"
+                      dir="ltr"
+                    />
+                  </div>
+                )}
               </div>
             </div>
             <footer className={styles.modalFoot}>
-              <button type="button" className={`${styles.btn} ${styles.btnGhost}`} onClick={closeModal}>
+              <button type="button" className={`${styles.btn} ${styles.btnGhost}`} onClick={closeModal} disabled={saving}>
                 إلغاء
               </button>
-              <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`}>
-                حفظ
+              <button type="submit" className={`${styles.btn} ${styles.btnPrimary} ${saving ? styles.isPending : ''}`} disabled={saving}>
+                <span className={styles.spinner} />
+                {saving ? 'جاري الحفظ...' : 'حفظ'}
               </button>
             </footer>
           </form>
+        </div>
+      )}
+
+      {deleteId && (
+        <div className={`${styles.modalBackdrop} ${styles.modalBackdropOpen}`} onClick={() => setDeleteId(null)}>
+          <div className={styles.modal} role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+            <header className={styles.modalHead}>
+              <h2>تأكيد الحذف</h2>
+              <button type="button" className={styles.iconBtn} onClick={() => setDeleteId(null)} aria-label="إغلاق">
+                <Icon name="close" size={19} />
+              </button>
+            </header>
+            <div className={styles.modalBody}>
+              <p>هل أنت متأكد من حذف هذا العميل؟ لا يمكن التراجع عن هذا الإجراء.</p>
+            </div>
+            <footer className={styles.modalFoot}>
+              <button type="button" className={`${styles.btn} ${styles.btnGhost}`} onClick={() => setDeleteId(null)}>
+                إلغاء
+              </button>
+              <button type="button" className={`${styles.btn} ${styles.btnDanger} ${deleting ? styles.isPending : ''}`} onClick={confirmDelete} disabled={deleting}>
+                <span className={styles.spinner} />
+                {deleting ? 'جاري الحذف...' : 'حذف'}
+              </button>
+            </footer>
+          </div>
         </div>
       )}
     </div>

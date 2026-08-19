@@ -18,12 +18,12 @@ export async function GET(
     }
 
     const { id } = await params
-    const data = await apiServer(`products/${id}`, { token, companyId })
+    const data = await apiServer(`customers/${id}`, { token, companyId })
     return NextResponse.json(data)
   } catch (error: unknown) {
     const err = error as { status?: number; data?: unknown; message?: string }
     return NextResponse.json(
-      err.data || { success: false, message: err.message || 'Failed to load product' },
+      err.data || { success: false, message: err.message || 'Failed to load customer' },
       { status: err.status || 500 }
     )
   }
@@ -46,7 +46,7 @@ export async function PUT(
 
     const { id } = await params
     const body = await request.json()
-    const data = await apiServer(`products/${id}`, {
+    const data = await apiServer(`customers/${id}`, {
       token,
       companyId,
       method: 'PUT',
@@ -56,7 +56,7 @@ export async function PUT(
   } catch (error: unknown) {
     const err = error as { status?: number; data?: unknown; message?: string }
     return NextResponse.json(
-      err.data || { success: false, message: err.message || 'Failed to update product' },
+      err.data || { success: false, message: err.message || 'Failed to update customer' },
       { status: err.status || 500 }
     )
   }
@@ -78,7 +78,7 @@ export async function DELETE(
     }
 
     const { id } = await params
-    const data = await apiServer(`products/${id}`, {
+    const data = await apiServer(`customers/${id}`, {
       token,
       companyId,
       method: 'DELETE',
@@ -87,7 +87,7 @@ export async function DELETE(
   } catch (error: unknown) {
     const err = error as { status?: number; data?: unknown; message?: string }
     return NextResponse.json(
-      err.data || { success: false, message: err.message || 'Failed to delete product' },
+      err.data || { success: false, message: err.message || 'Failed to delete customer' },
       { status: err.status || 500 }
     )
   }

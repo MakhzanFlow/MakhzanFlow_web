@@ -38,3 +38,32 @@ export async function GET(request: Request) {
     )
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    const token = await getAccessToken()
+    if (!token) {
+      return NextResponse.json({ success: false, message: 'Not authenticated' }, { status: 401 })
+    }
+
+    const companyId = request.headers.get('x-company-id')
+    if (!companyId) {
+      return NextResponse.json({ success: false, message: 'Company ID required' }, { status: 400 })
+    }
+
+    const body = await request.json()
+    const data = await apiServer('customers', {
+      token,
+      companyId,
+      method: 'POST',
+      body: JSON.stringify(body),
+    })
+    return NextResponse.json(data, { status: 201 })
+  } catch (error: unknown) {
+    const err = error as { status?: number; data?: unknown; message?: string }
+    return NextResponse.json(
+      err.data || { success: false, message: err.message || 'Failed to create customer' },
+      { status: err.status || 500 }
+    )
+  }
+}
