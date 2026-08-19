@@ -1,59 +1,59 @@
 .container {
   position: fixed;
-  top: 1.5rem;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 24px;
+  left: 24px;
   z-index: 9999;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 10px;
   pointer-events: none;
 }
 
 .toast {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  animation: slideIn 0.3s ease-out;
+  gap: 10px;
+  max-width: calc(100vw - 48px);
+  background: var(--accent, #0f5132);
+  color: #fff;
+  padding: 14px 20px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  box-shadow: 0 16px 40px -10px rgba(15, 81, 50, .55);
+  animation: slideIn 0.22s ease-out;
   pointer-events: auto;
 }
 
+.icon {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.22);
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .error {
-  background: var(--color-error, #b91c1c);
-  color: #fff;
+  background: var(--error, #b91c1c);
 }
 
 .success {
-  background: var(--color-success, #16a34a);
-  color: #fff;
+  background: var(--accent, #0f5132);
 }
 
 .info {
-  background: var(--color-primary, #1a7a4a);
-  color: #fff;
-}
-
-.icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  font-size: 0.75rem;
-  font-weight: 700;
+  background: var(--accent, #0f5132);
 }
 
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(-1rem);
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
