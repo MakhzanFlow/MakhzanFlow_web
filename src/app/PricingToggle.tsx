@@ -1,186 +1,130 @@
 'use client'
 
 import { useState } from 'react'
+import type { CSSProperties } from 'react'
+import Link from 'next/link'
 import styles from './PricingToggle.module.css'
 
 type BillingPeriod = 'monthly' | 'annual'
 
-type PricingPlan = {
+type Plan = {
   name: string
-  monthly: number
-  annual: number
-  description: string
-  groups: {
-    label: string
-    features: string[]
-  }[]
+  sub: string
+  monthly?: string
+  annual?: string
+  fixed?: string
+  periodNote?: string
+  features: string[]
   cta: string
-  popular?: boolean
-  annualSave?: string
+  href: string
+  primary?: boolean
+  badge?: string
 }
 
-const plans: PricingPlan[] = [
+const plans: Plan[] = [
   {
-    name: 'المبتدئ',
-    monthly: 0,
-    annual: 0,
-    description: 'مثالي للتجار الجدد والمخازن الصغيرة',
-    groups: [
-      {
-        label: 'المخزون والمبيعات',
-        features: ['منتجات وفئات غير محدودة', 'فواتير بيع وشراء مع خصومات', 'باركود و QR Scanner'],
-      },
-      {
-        label: 'العملاء والتقارير',
-        features: ['إدارة العملاء والديون', 'تقارير مبيعات + تصدير Excel'],
-      },
+    name: 'Starter',
+    sub: 'لمخزن واحد يبدأ شغله بذكاء',
+    monthly: 'مجاني',
+    annual: 'مجاني',
+    periodNote: ' للأبد',
+    features: [
+      'منتجات وفواتير غير محدودة',
+      'تتبع مخزون وتنبيهات أساسية',
+      'تقارير شهرية',
+      'شغل Offline',
+      'دعم بالإيميل',
     ],
     cta: 'ابدأ مجاناً',
+    href: '/register',
   },
   {
-    name: 'الأعمال',
-    monthly: 599,
-    annual: 5750,
-    description: 'للمحلات النامية والفرق الصغيرة',
-    groups: [
-      {
-        label: 'المخزون والمبيعات',
-        features: ['كل ما في المجاني + تعديلات متقدمة', 'فواتير متكررة ومجدولة', 'نقاط بيع (POS) متقدمة'],
-      },
-      {
-        label: 'العملاء والفريق',
-        features: ['تذكيرات ديون آلية + تقارير أرصدة', 'صلاحيات فريق مرنة (JSON)', 'شركات متعددة + API وصول'],
-      },
+    name: 'Business',
+    sub: 'للتوزيع والفروع والفرق الأكبر',
+    monthly: '٣٥٠ ج.م',
+    annual: '٣٠٠ ج.م',
+    periodNote: '/شهر',
+    features: [
+      'كل مزايا Starter',
+      'تتبع ديون متقدم',
+      'صلاحيات فريق متعددة',
+      'شركات متعددة',
+      'تصدير Excel + تكاملات',
+      'دعم أولوية',
     ],
-    cta: 'جرب 14 يوم مجاناً',
-    popular: true,
-    annualSave: 'وفر 1,198 ج.م سنوياً',
+    cta: 'ابدأ مجاناً',
+    href: '/register',
+    primary: true,
+    badge: 'الأكثر شيوعاً',
   },
   {
-    name: 'المؤسسات',
-    monthly: 1499,
-    annual: 14390,
-    description: 'للموزعين والسلاسل الكبيرة',
-    groups: [
-      {
-        label: 'كل ميزات الأعمال',
-        features: ['شركات غير محدودة + API كامل', 'مدير حساب شخصي + دعم مخصص', 'SLA مضمون + تدريب فريق'],
-      },
+    name: 'Enterprise',
+    sub: 'للسلاسل والمخازن الكبيرة',
+    fixed: 'حسب الحجم',
+    features: [
+      'كل مزايا Business',
+      'صلاحيات JSON مرنة',
+      'حسابات غير محدودة',
+      'دعم مخصص وترحيل بيانات',
+      'اتفاقية مستوى خدمة',
     ],
-    cta: 'تواصل مع المبيعات',
-    annualSave: 'وفر 2,998 ج.م سنوياً',
+    cta: 'كلمنا',
+    href: '#faq',
   },
 ]
 
-const trustBadges = [
-  {
-    label: 'لا بطاقة ائتمان',
-    icon: (
-      <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="5" y1="15" x2="9" y2="15"/></svg>
-    ),
-  },
-  {
-    label: 'إلغاء في أي وقت',
-    icon: (
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-    ),
-  },
-  {
-    label: 'تجربة مجانية 14 يوم',
-    icon: (
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-    ),
-  },
-  {
-    label: 'ضمان 30 يوم',
-    icon: (
-      <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    ),
-  },
-]
-
-function formatAmount(amount: number) {
-  return amount.toLocaleString('en-US')
-}
+const checkIcon = (
+  <svg><use href="#i-check" /></svg>
+)
 
 export default function PricingToggle() {
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly')
   const isAnnual = billingPeriod === 'annual'
-  const periodText = isAnnual ? '/ سنة (تُفوتر سنوياً)' : '/ شهر'
 
   return (
     <>
-      <div className={styles.pricingToggle} role="group" aria-label="اختر دورة الفوترة">
+      <div className={`${styles.pricingToggle} reveal`} style={{ '--d': '.1s' } as CSSProperties} role="group" aria-label="اختر دورة الفوترة">
         <button
           type="button"
-          className={`${styles.pricingToggleLabel} ${!isAnnual ? styles.active : ''}`}
+          className={`${styles.tglBtn} ${!isAnnual ? styles.on : ''}`}
+          aria-pressed={!isAnnual}
           onClick={() => setBillingPeriod('monthly')}
         >
-          شهرياً
+          شهري
         </button>
         <button
           type="button"
-          className={`${styles.pricingToggleSwitch} ${isAnnual ? styles.active : ''}`}
+          className={`${styles.tglBtn} ${isAnnual ? styles.on : ''}`}
           aria-pressed={isAnnual}
-          aria-label="تبديل بين الشهري والسنوي"
-          onClick={() => setBillingPeriod(isAnnual ? 'monthly' : 'annual')}
-        >
-          {isAnnual ? <span className={styles.pricingToggleSave}>وفر 20%</span> : null}
-        </button>
-        <button
-          type="button"
-          className={`${styles.pricingToggleLabel} ${isAnnual ? styles.active : ''}`}
           onClick={() => setBillingPeriod('annual')}
         >
-          سنوياً
+          سنوي <span className={styles.disc}>خصم ١٥٪</span>
         </button>
       </div>
 
-      <div className={`${styles.pricingGrid} reveal-group`}>
+      <div className={styles.plans}>
         {plans.map((plan, index) => (
           <article
             key={plan.name}
-            className={`${styles.pricingCard} ${plan.popular ? styles.popular : ''} reveal-child`}
-            style={{ animationDelay: `${0.05 + index * 0.08}s` }}
+            className={`${styles.plan} ${plan.primary ? styles.pop : ''} reveal`}
+            style={{ '--d': `${0.1 + index * 0.1}s` } as CSSProperties}
           >
-            {plan.popular ? <div className={styles.pricingCardBadge}>الأكثر شيوعاً</div> : null}
-            <div className={styles.pricingCardPlan}>
-              <span className={styles.pricingCardName}>{plan.name}</span>
+            {plan.badge ? <span className={styles.planBadge}>{plan.badge}</span> : null}
+            <h3>{plan.name}</h3>
+            <p className={styles.sub}>{plan.sub}</p>
+            <div className={styles.price}>
+              <b>{plan.fixed ?? (isAnnual ? plan.annual : plan.monthly)}</b>
+              <span>{plan.fixed ? '' : plan.periodNote}</span>
             </div>
-            <div className={styles.pricingCardPrice}>
-              <span className={styles.pricingCardAmount}>
-                <span className={styles.pricingCurrency}>ج.م</span>
-                <span className={styles.pricingAmount}>{formatAmount(isAnnual ? plan.annual : plan.monthly)}</span>
-              </span>
-              <span className={styles.pricingPeriod}>{periodText}</span>
-              {isAnnual && plan.annualSave ? <span className={styles.pricingCardAnnualSave}>{plan.annualSave}</span> : null}
-            </div>
-            <p className={styles.pricingDesc}>{plan.description}</p>
-            <div className={styles.pricingCardFeatures}>
-              {plan.groups.map((group) => (
-                <div key={group.label} className={styles.pricingCardFeatureGroup}>
-                  <span className={styles.pricingCardFeatureGroupLabel}>{group.label}</span>
-                  <ul className={styles.pricingCardFeatureList}>
-                    {group.features.map((feature) => (
-                      <li key={feature}>{feature}</li>
-                    ))}
-                  </ul>
-                </div>
+            <ul>
+              {plan.features.map((feature) => (
+                <li key={feature}><span className={styles.liIc}>{checkIcon}</span> {feature}</li>
               ))}
-            </div>
-            <button className={`btn ${plan.popular ? 'btn-primary' : 'btn-secondary'}`} type="button">
+            </ul>
+            <Link href={plan.href} className={`btn ${plan.primary ? 'btn-primary' : 'btn-secondary'}`}>
               {plan.cta}
-            </button>
+            </Link>
           </article>
-        ))}
-      </div>
-
-      <div className={styles.pricingTrust}>
-        {trustBadges.map((badge) => (
-          <span key={badge.label} className={styles.pricingTrustItem}>
-            {badge.icon}
-            {badge.label}
-          </span>
         ))}
       </div>
     </>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import type { CSSProperties } from 'react'
 import styles from './FaqAccordion.module.css'
 
 type FaqItem = {
@@ -13,43 +14,38 @@ type FaqAccordionProps = {
 }
 
 export default function FaqAccordion({ items }: FaqAccordionProps) {
-  const [openItems, setOpenItems] = useState<Set<number>>(() => new Set())
+  const [openIndex, setOpenIndex] = useState<number>(0)
 
   function toggleItem(index: number) {
-    setOpenItems((current) => {
-      const next = new Set(current)
-      if (next.has(index)) {
-        next.delete(index)
-      } else {
-        next.add(index)
-      }
-      return next
-    })
+    setOpenIndex((current) => (current === index ? -1 : index))
   }
 
   return (
-    <div className={`${styles.faqList} reveal-child`}>
+    <div className={`${styles.faqWrap} reveal`}>
       {items.map((item, index) => {
-        const isOpen = openItems.has(index)
+        const isOpen = openIndex === index
         const answerId = `faq-answer-${index}`
 
         return (
-          <div key={item.q} className={`${styles.faqItem} ${isOpen ? styles.open : ''}`}>
+          <article key={item.q} className={`${styles.faqItem} ${isOpen ? styles.open : ''} reveal`} style={{ '--d': `${index * 0.06}s` } as CSSProperties}>
             <button
               type="button"
-              className={styles.faqQuestion}
+              className={styles.faqQ}
               aria-expanded={isOpen}
               aria-controls={answerId}
               onClick={() => toggleItem(index)}
             >
               {item.q}
+              <span className={styles.ic}>
+                <svg><use href="#i-chev" /></svg>
+              </span>
             </button>
-            <div id={answerId} className={styles.faqAnswer}>
-              <div>
+            <div id={answerId} className={styles.faqA}>
+              <div className={styles.faqAInner}>
                 <p>{item.a}</p>
               </div>
             </div>
-          </div>
+          </article>
         )
       })}
     </div>

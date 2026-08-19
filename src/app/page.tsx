@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
+import Link from 'next/link'
+import type { CSSProperties } from 'react'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
+import IconSprite from '@/components/IconSprite'
+import ScrollReveal from '@/components/ScrollReveal'
 import PricingToggle from './PricingToggle'
 import FaqAccordion from './FaqAccordion'
 import styles from './page.module.css'
@@ -11,49 +14,175 @@ export const metadata: Metadata = {
   description: 'StockFlow هو نظام إدارة مخازن وتوزيع للمحلات والسوبر ماركت - فواتير، مخزون، ديون العملاء، تقارير، وتعاون الفريق. كل ده من جوالك وبالعربي.',
 }
 
+const d = (value: string) => ({ '--d': value }) as CSSProperties
+
+const icon = (id: string) => <svg><use href={`#${id}`} /></svg>
+
 const features = [
   {
-    icon: (
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>
-    ),
+    icon: 'i-box',
     title: 'إدارة المخزون',
-    desc: 'تتبع المنتجات والكميات في كل المخازن. أدخل صنف جديد، عدّل الكمية، واعرف المنتجات اللي خلصت قبل ما تطلب من المورد.',
+    desc: 'تابع منتجاتك لحظة بلحظة، حدد الحد الأدنى لكل صنف، واستلم تنبيه قبل نفاد الكمية. اعرف المنتجات القاربة تخلص قبل ما العميل يسأل.',
   },
   {
-    icon: (
-      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-    ),
+    icon: 'i-receipt',
     title: 'الفواتير',
-    desc: 'إنشاء فواتير البيع والشراء بسرعة. اختر العميل، ضيف المنتجات، واطبع أو اتسحاب الفاتورة بصيغة Excel بضغطة واحدة.',
+    desc: 'فواتير بيع وشراء سريعة من جوالك، مع حساب الإجمالي والخصم تلقائياً وطباعة أو مشاركة الفاتورة مباشرة.',
   },
   {
-    icon: (
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-    ),
+    icon: 'i-wallet',
     title: 'تتبع الديون',
-    desc: 'سجل ديون العملاء والموردين. اعرف مين عليه فلوس ومين ليه فلوس عندك. ألوان واضحة: أخضر مدفوع، برتقالي part payments، أحمر متأخر.',
+    desc: 'تابع ديون العملاء ومواعيد السداد بحالة واضحة لكل معاملة: مدفوع، جزئي، أو مستحق — عشان تبقى عارف مين محتاج متابعة.',
   },
   {
-    icon: (
-      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-    ),
+    icon: 'i-users',
     title: 'فريق العمل',
-    desc: 'حدد صلاحيات كل فرد - مالك، مدير، موظف. كل واحد يشوف اللي يخصه ويسجل دخوله بشكل منفصل وكل التغييرات متسجلة.',
+    desc: 'صلاحيات مرنة حسب الأدوار: مالك، مدير، موظف — وحدد لكل واحد اللي يشوفه ويعمله بالظبط، من غير ما يضيع منك التحكم.',
   },
   {
-    icon: (
-      <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><path d="M21 3v6h-6"/><path d="M3 12h4"/><path d="M17 12h4"/><path d="M12 3v4"/><path d="M12 17v4"/></svg>
-    ),
+    icon: 'i-chart',
     title: 'التقارير والتحليلات',
-    desc: 'كشف يومي وشهري بالمبيعات والمخزون والأرباح. تقارير واضحة تساعدك تتخذ قرارات أسرع - تصدير Excel متاح لكل التقارير.',
+    desc: 'تقارير مبيعات ومخزون وأرباح واضحة، وتصدير Excel بضغطة واحدة — عشان تاخد قراراتك من أرقام حقيقية مش حدس.',
   },
   {
-    icon: (
-      <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>
-    ),
+    icon: 'i-globe',
     title: 'عربية أولاً',
-    desc: 'التطبيق بالعربي الفصحى من البداية مش ترجمة. واجهة RTL تدعم الكتابة من اليمين لليسار، أزرار، قوائم، وتنقل سهل مصمم للسوق المصري.',
+    desc: 'تجربة عربية RTL كاملة مصممة للسوق المصري، بأزرار ونصوص واضحة سريعة التعلم — من غير مصطلحات معقدة ولا مسارات ملتوية.',
   },
+]
+
+const businessTypes = [
+  { label: 'سوبر ماركت', icon: 'i-store' },
+  { label: 'صيدليات', icon: 'i-pharm' },
+  { label: 'مطاعم', icon: 'i-food' },
+  { label: 'كافيهات', icon: 'i-coffee' },
+  { label: 'إلكترونيات', icon: 'i-bolt' },
+  { label: 'موضة وملابس', icon: 'i-hanger' },
+  { label: 'جملة وتوزيع', icon: 'i-truck' },
+  { label: 'مخازن', icon: 'i-build' },
+]
+
+const roleCards = [
+  {
+    icon: 'i-shield',
+    color: 'owner',
+    title: 'المالك',
+    note: 'كل حاجة تحت سيطرتك',
+    perms: [
+      { label: 'إدارة الفواتير والمخزون', on: true },
+      { label: 'حذف الفواتير', on: true },
+      { label: 'التقارير المالية', on: true },
+      { label: 'إدارة الفريق والصلاحيات', on: true },
+      { label: 'الإعدادات والشركات', on: true },
+    ],
+    noteText: 'صلاحيات كاملة: يضيف ويعدل ويحذف كل حاجة، ويدير الأدوار ويحذف الشركة.',
+  },
+  {
+    icon: 'i-users',
+    color: 'admin',
+    title: 'المدير',
+    note: 'يشرف على الشغل اليومي',
+    perms: [
+      { label: 'إدارة الفواتير والمخزون', on: true },
+      { label: 'حذف الفواتير', on: true },
+      { label: 'التقارير المالية', on: true },
+      { label: 'إدارة الفريق والصلاحيات', on: true },
+      { label: 'الإعدادات والشركات', on: false },
+    ],
+    noteText: 'يحكم شغل الفريق كله، لكن تعديل الإعدادات الجذرية وحذف الشركة للمالك بس.',
+  },
+  {
+    icon: 'i-chart',
+    color: 'emp',
+    title: 'الموظف',
+    note: 'شغال على الأرض',
+    perms: [
+      { label: 'إدارة الفواتير والمخزون', on: true },
+      { label: 'حذف الفواتير', on: false },
+      { label: 'التقارير المالية', on: false },
+      { label: 'إدارة الفريق والصلاحيات', on: false },
+      { label: 'الإعدادات والشركات', on: false },
+    ],
+    noteText: 'يبعت ويعدل فواتير ومخزون بس، من غير أي صلاحية مالية أو إدارية. عدّل كل نقشة كما تحب.',
+  },
+]
+
+const integrations = [
+  { label: 'باركود سكانر', icon: 'i-bolt' },
+  { label: 'طابعة فواتير', icon: 'i-receipt' },
+  { label: 'QR للدفع', icon: 'i-phone' },
+  { label: 'واتساب', icon: 'i-chat' },
+  { label: 'إيميل', icon: 'i-mail' },
+  { label: 'نسخ احتياطي سحابي', icon: 'i-cloud' },
+]
+
+const securityPoints = [
+  'تشفير كامل للبيانات',
+  'نسخ احتياطي تلقائي',
+  'صلاحيات الأدوار',
+  'عزل بيانات الشركات',
+]
+
+const diffCards = [
+  {
+    icon: 'i-shield',
+    title: 'نظام صلاحيات مرن',
+    desc: 'مش أدوار جامدة — حدد لكل موظف إمكانياته بالظبط، من شاشة بسيطة.',
+  },
+  {
+    icon: 'i-build',
+    title: 'شركات متعددة — من حساب واحد',
+    desc: 'تدير أكتر من شركة أو مخزن من نفس الحساب، وبيانات كل شركة معزولة تماماً.',
+  },
+  {
+    icon: 'i-phone',
+    title: 'شغل من غير نت',
+    desc: 'فواتيرك ومخزونك شغالين حتى من غير إنترنت، والمزامنة بتحصل تلقائياً.',
+  },
+  {
+    icon: 'i-trend',
+    title: 'تقارير وتصدير Excel',
+    desc: 'تحليلات دقيقة، وتصدير فوري لكل تقاريرك بصيغة Excel جاهزة للشغل.',
+  },
+]
+
+const processSteps = [
+  { num: '١', title: 'سجل وضيف بياناتك', desc: 'أنشئ حسابك مجاناً وضيف شركتك ومخزنك الأول — من غير بطاقة ائتمان.' },
+  { num: '٢', title: 'ضيف المنتجات والعملاء', desc: 'استورد منتجاتك من Excel أو ضيفها يدوياً، وسجل عملاءك بسرعة.' },
+  { num: '٣', title: 'ابدأ الشغل', desc: 'افتح فواتيرك، تابع المخزون والديون، واطلع على تقاريرك من أي مكان.' },
+]
+
+const testimonials = [
+  {
+    text: '"كنت بضيع وقت كتير في تسجيل الفواتير بالورق. دلوقتي كل حاجة على الموبايل، والصورة قدامي في ثانية."',
+    name: 'أحمد السيد',
+    role: 'سوبر ماركت المنصورة',
+    initial: 'أ',
+    color: 'g',
+  },
+  {
+    text: '"تتبع ديون العملاء كان أصعب حاجة عندي. مع StockFlow أعرف مين مديون ومين سدد من غير ما أسأل حد."',
+    name: 'محمود عبدالله',
+    role: 'موزع مواد غذائية القاهرة',
+    initial: 'م',
+    color: 'o',
+  },
+  {
+    text: '"التنبيهات لما أي صنف يقل عن الحد الأدنى أنقذتني أكتر من مرة، خصوصاً في الأدوية."',
+    name: 'ناصر علي',
+    role: 'صيدلي الإسكندرية',
+    initial: 'ن',
+    color: 'd',
+  },
+]
+
+const faqItems = [
+  { q: 'هل محتاج إنترنت عشان أستخدم التطبيق؟', a: 'لأ. التطبيق شغال Offline بالكامل — تفتح فواتير وتتابع المخزون من غير نت، وكل حاجة بتتزامن تلقائياً أول ما الإنترنت يرجع.' },
+  { q: 'أقدر أشارك الشغل مع فريق العمل؟', a: 'أيوه. تضيف موظفين ومديرين بصلاحيات مرنة — أنت اللي تحدد كل واحد يشوف إيه ويعمل إيه بالظبط، من مالك كامل الصلاحيات لموظف شغال بالفواتير فقط.' },
+  { q: 'هل بياناتي ومخزوني آمنة؟', a: 'بياناتك مشفرة بالكامل، مع نسخ احتياطي تلقائي على السحابة، وعزل كامل بين الشركات — كل شركة بتشوف بياناتها بس.' },
+  { q: 'أقدر أصدّر التقارير Excel؟', a: 'أيوه. تصدّر تقارير المبيعات والمخزون والديون بصيغة Excel بضغطة واحدة، وتقدر كمان تستورد منتجاتك وعملاءك من ملفات Excel جاهزة.' },
+  { q: 'أقدر أجرب قبل ما أدفع؟', a: 'أكيد. فيه خطة مجانية للأبد، ولو حبيت ترقي فجرب كل مزايا الخطط المدفوعة 14 يوم مجاناً — من غير بطاقة ائتمان وإلغاء في أي وقت.' },
+  { q: 'التطبيق مناسب لمخزني؟', a: 'التطبيق مصمم للسوبر ماركت والموزعين والصيدليات والمطاعم والكافيهات وغيرهم، وبيتظبط على حجم شغلك — من مخزن صغير لسلسلة فروع بشركات متعددة.' },
 ]
 
 const heroStats = [
@@ -62,322 +191,386 @@ const heroStats = [
   { value: 'Excel', label: 'استيراد وتصدير' },
 ]
 
+const heroTrustPoints = ['بدون بطاقة ائتمان', 'تجربة 14 يوم مجاناً', 'إلغاء في أي وقت']
+
 const dashboardMetrics = [
-  { label: 'مبيعات اليوم', value: '18,450 ج.م', tone: 'success' },
-  { label: 'ديون مستحقة', value: '6,200 ج.م', tone: 'warning' },
-  { label: 'منتجات قاربت تخلص', value: '12 صنف', tone: 'danger' },
+  { label: 'مبيعات اليوم', value: '18,450 ج.م', tone: 'g', icon: 'i-receipt', status: 'مدفوع' },
+  { label: 'ديون مستحقة', value: '6,200 ج.م', tone: 'o', icon: 'i-wallet', status: 'جزئي' },
+  { label: 'منتجات قاربت تخلص', value: '12 صنف', tone: 'r', icon: 'i-box', status: 'حرج' },
 ]
 
-const insightCards = [
-  { label: 'تنبيه ذكي', value: 'المخزون قل', desc: 'السكر 1 كجم وصل للحد الأدنى' },
-  { label: 'آخر مزامنة', value: 'منذ 4 دقائق', desc: 'كل الفواتير محفوظة ومتزامنة' },
+const dashNavItems = [
+  { label: 'الرئيسية', icon: 'i-grid', active: true },
+  { label: 'فواتير', icon: 'i-receipt' },
+  { label: 'مخزون', icon: 'i-box' },
+  { label: 'تقارير', icon: 'i-chart' },
+  { label: 'إعدادات', icon: 'i-gear' },
 ]
 
-const diffCards = [
-  {
-    icon: <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>,
-    title: 'نظام صلاحيات مرن',
-    desc: 'مش fixed roles - صلاحيات JSON. المالك يتحكم في كل حاجة، الموظف يشوف اللي يتسندوله بس.',
-  },
-  {
-    icon: <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>,
-    title: 'شركات متعددة - من حساب واحد',
-    desc: 'ادير أكتر من شركة من نفس الحساب. حول بينهم بضغطة - وكل شركة بياناتها منفصلة تماماً.',
-  },
-  {
-    icon: <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>,
-    title: 'شغل من غير نت',
-    desc: 'التطبيق شغال بدون إنترنت. كل الفواتير والمخزون متاحين - وأي تغيير يتزامن تلقائي أول ما ترجع.',
-  },
-  {
-    icon: <svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><path d="M21 3v6h-6"/></svg>,
-    title: 'تقارير وتصدير Excel',
-    desc: 'تقارير يومية وشهرية - مبيعات، مخزون، ديون، أرباح - وتصديرها بصيغة Excel بضغطة واحدة.',
-  },
-]
+const phoneMockup = {
+  miniStats: [
+    { value: '18,450 ج.م', label: 'مبيعات اليوم', icon: 'i-receipt', tone: 'g' },
+    { value: '12', label: 'فاتورة', icon: 'i-receipt', tone: 'g' },
+    { value: '6,200 ج.م', label: 'ديون مستحقة', icon: 'i-wallet', tone: 'o' },
+  ],
+  chartBars: [
+    { day: 'س', h: 42 },
+    { day: 'ح', h: 60 },
+    { day: 'ن', h: 48 },
+    { day: 'ث', h: 72 },
+    { day: 'ر', h: 55 },
+    { day: 'خ', h: 84 },
+    { day: 'ج', h: 64, hot: true },
+  ],
+  invoices: [
+    { num: '#102', name: 'أحمد المصري', amt: '1,250 ج.م', status: 'مدفوع', tone: 'g' },
+    { num: '#101', name: 'شركة النور', amt: '3,800 ج.م', status: 'جزئي', tone: 'o' },
+    { num: '#100', name: 'محمود سعيد', amt: '980 ج.م', status: 'مستحق', tone: 'r' },
+  ],
+}
 
-const processSteps = [
-  {
-    icon: <svg viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>,
-    title: 'سجل وضيف بياناتك',
-    desc: 'حمل التطبيق، اعمل حساب، وضيف الشركة - اسم، عنوان، بيانات الضرائب.',
-  },
-  {
-    icon: <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>,
-    title: 'ضيف المنتجات والعملاء',
-    desc: 'ضيف أصناف المخزن والأسعار والكميات. استورد العملاء من Excel أو ضيفهم واحدا واحدا.',
-  },
-  {
-    icon: <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>,
-    title: 'ابدأ الشغل',
-    desc: 'اعمل فواتير، تابع المخزون، وسجل الديون. كل حاجة شغالة معاك في الحال.',
-  },
-]
+function PhoneMockup() {
+  return (
+    <div className={styles.phone}>
+      <div className={styles.phoneIn}>
+        <div className={styles.island} aria-hidden="true" />
+        <div className={styles.dashHead}>
+          <span className={styles.dashAva}>{icon('i-box')}</span>
+          <div className={styles.dashTitle}><b>لوحة اليوم</b><span>السبت 14 أغسطس</span></div>
+          <span className={styles.sync}>{icon('i-sync')}</span>
+        </div>
+        {dashboardMetrics.map((metric) => (
+          <div className={styles.metric} key={metric.label}>
+            <span className={`${styles.metricIc} ${styles[metric.tone]}`}>{icon(metric.icon)}</span>
+            <div className={styles.metricTxt}><small>{metric.label}</small><b>{metric.value}</b></div>
+            <span className={`${styles.st} ${styles[metric.tone]}`}>{metric.status}</span>
+          </div>
+        ))}
+        <div className={styles.progress}>
+          <div className={styles.progressRow}><b>تقدم التحصيل</b><small>78%</small></div>
+          <div className={styles.bar}><i /></div>
+        </div>
+        <div className={styles.dashNav}>
+          {dashNavItems.map((item) => (
+            <div key={item.label} className={item.active ? styles.active : undefined}>
+              {icon(item.icon)}
+              <span>{item.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
-const testimonials = [
-  {
-    text: '"كنت بضيع ديون كتير قبل StockFlow. دلوقتي عارف مين دافع ومين لسه - والديون قلت ٤٠٪ في ٣ شهور."',
-    name: 'أحمد السيد',
-    role: 'صاحب سوبر ماركت - المنصورة',
-    initial: 'أ',
-    color: 'var(--accent)',
-  },
-  {
-    text: '"نظام الصلاحيات والشركات المتعددة خلاني أدير ٣ مخازن من جوال واحد. كل مدير عنده صلاحياته وكل مخزن له تقاريره."',
-    name: 'محمود عبدالله',
-    role: 'موزع مواد غذائية - القاهرة',
-    initial: 'م',
-    color: 'var(--accent-secondary)',
-  },
-  {
-    text: '"تقارير Excel كانت اللي خلصتني مع مراجعة نهاية السنة. ضغطة وطلعت تقرير المخزون والأرباح - بدل يومين شغل في Excel."',
-    name: 'ناصر علي',
-    role: 'صيدلي - الإسكندرية',
-    initial: 'ن',
-    color: 'var(--accent)',
-  },
-]
-
-const faqItems = [
-  { q: 'هل فيه نسخة مجانية؟', a: 'أيوه، في خطة Starter مجانية بالكامل — شركة واحدة، 3 موظفين، التقارير الأساسية. تقدر تبدا من غير ما تدفع حاجة.' },
-  { q: 'هل StockFlow شغال من غير نت؟', a: 'أيوه، في دعم غير متصل (offline support) — تقدر تسجل فواتير وتضيف منتجات من غير اتصال بالنت، و automatic sync لما ترجع تتصل.' },
-  { q: 'أقدر أدير أكتر من شركة من حساب واحد؟', a: 'أكيد. ميزة Multi-company — تقدر تنشئ شركات غير محدودة، تتنقل بينهم فوراً، وكل شركة ليها بيانات وفريق وصلاحيات مستقلة.' },
-  { q: 'هل أقدر أحدد صلاحيات كل موظف؟', a: 'أيوه، نظام صلاحيات مرن — owner كل حاجة، admin يقدّر يفعّل/يعطّل صلاحيات، employee ليه بس الصلاحيات اللي تنداله. تقدر تتحكم في كل حاجة: المنتجات، الفواتير، التقارير، الدفع...' },
-  { q: 'هل أقدر أستورد المنتجات من Excel؟', a: 'أيوه، تقدر تستورد المنتجات والعملاء من Excel، وتصدر التقارير إلى Excel برضه. ولو عايز دمج مع POS أو باركود Scanner، البرنامج بيدعمه.' },
-  { q: 'بياناتي آمنة؟', a: 'أكيد. تشفير كامل، نسخ احتياطي تلقائي، صلاحيات الأدوار، وعزل بيانات كل شركة. ولو احتجت مساعدة، الدعم الفني موجود.' },
-]
+function PhonePreviewMockup() {
+  return (
+    <div className={styles.phone}>
+      <div className={styles.phoneIn}>
+        <div className={styles.island} aria-hidden="true" />
+        <div className={styles.dashHead}>
+          <span className={styles.dashAva}>{icon('i-box')}</span>
+          <div className={styles.dashTitle}><b>الرئيسية</b><span>السبت 14 أغسطس</span></div>
+          <span className={styles.sync}>{icon('i-sync')}</span>
+        </div>
+        <div className={styles.miniStats}>
+          {phoneMockup.miniStats.map((mini) => (
+            <div className={styles.mini} key={mini.label}>
+              <span className={`${styles.miniIc} ${styles[mini.tone]}`}>{icon(mini.icon)}</span>
+              <b>{mini.value}</b>
+              <small>{mini.label}</small>
+            </div>
+          ))}
+        </div>
+        <div className={styles.panel}>
+          <div className={styles.panelHead}>المبيعات — آخر ٧ أيام <small>ج.م</small></div>
+          <div className={styles.chart} role="img" aria-label="مخطط مبيعات آخر سبعة أيام">
+            {phoneMockup.chartBars.map((bar) => (
+              <div className={styles.bc} key={bar.day} style={{ height: '100%' }}>
+                <div className={`${styles.fill} ${bar.hot ? styles.hot : ''}`} style={{ height: `${bar.h}%` }} />
+                <span>{bar.day}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className={styles.panel}>
+          <div className={styles.panelHead}>أحدث الفواتير <small>عرض الكل</small></div>
+          {phoneMockup.invoices.map((inv) => (
+            <div className={styles.inv} key={inv.num}>
+              <div className={styles.invTxt}><b>فاتورة {inv.num}</b><small>{inv.name}</small></div>
+              <span className={styles.amt}>{inv.amt}</span>
+              <span className={`${styles.st} ${styles[inv.tone]}`}>{inv.status}</span>
+            </div>
+          ))}
+        </div>
+        <div className={styles.dashNav}>
+          {dashNavItems.map((item) => (
+            <div key={item.label} className={item.active ? styles.active : undefined}>
+              {icon(item.icon)}
+              <span>{item.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function HomePage() {
   return (
     <>
+      <IconSprite />
       <Nav />
+      <ScrollReveal />
 
-      {/* Hero */}
-      <section className={styles.hero}>
-        <div className={`${styles.heroShell} container`}>
-          <div className={styles.heroCopy}>
-            <div className={`${styles.heroBadge} hero-badge`}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2l3 6 7 .9-5 4.7 1.3 6.9L12 18l-6.3 3.5L7 14.6 2 9.9 9 9z"/>
-              </svg>
-              إدارة المخازن والتوزيع بالكامل من جوالك
-            </div>
-            <h1 className={`${styles.heroTitle} hero-title`}>حوّل جوالك إلى غرفة عمليات للمخزن</h1>
-            <p className={`${styles.heroBody} hero-body`}>StockFlow يجمع الفواتير، المخزون، ديون العملاء، التقارير، وصلاحيات الفريق في تجربة عربية سريعة وواضحة. افتح التطبيق، شوف الصورة كاملة، واتخذ القرار قبل ما المشكلة تكبر.</p>
-            <div className={`${styles.heroActions} hero-actions`}>
-              <button className="btn btn-primary">ابدأ مجاناً</button>
-              <button className="btn btn-secondary">شوف طريقة الشغل</button>
-            </div>
-            <div className={styles.heroStats}>
-              {heroStats.map((stat) => (
-                <div key={stat.label} className={styles.heroStat}>
-                  <strong>{stat.value}</strong>
-                  <span>{stat.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.heroVisual} aria-label="لوحة متابعة StockFlow">
-            <div className={styles.dashboardCard}>
-              <div className={styles.dashboardHeader}>
-                <div>
-                  <span className={styles.dashboardEyebrow}>لوحة اليوم</span>
-                  <h2>نظرة واحدة تكفي</h2>
-                </div>
-                <span className={styles.livePill}>مباشر</span>
+      <main id="top">
+        {/* Hero */}
+        <section className={styles.hero}>
+          <div className={styles.heroBg} aria-hidden="true" />
+          <div className={`${styles.heroGrid} container`}>
+            <div>
+              <span className={`kicker ${styles.anim}`} style={d('.05s')}><span className="dot" />إدارة المخازن والتوزيع بالكامل من جوالك</span>
+              <h1 className={styles.anim} style={d('.15s')}>حوّل جوالك إلى <span className={styles.hl}>غرفة عمليات</span> للمخزن</h1>
+              <p className={`${styles.lead} ${styles.anim}`} style={d('.25s')}>StockFlow يجمع الفواتير، المخزون، ديون العملاء، التقارير، وصلاحيات الفريق في تجربة عربية سريعة وواضحة. افتح التطبيق، شوف الصورة كاملة، واتخذ القرار قبل ما المشكلة تكبر.</p>
+              <div className={`${styles.heroCtas} ${styles.anim}`} style={d('.35s')}>
+                <Link href="/register" className="btn btn-primary">ابدأ مجاناً {icon('i-arrow')}</Link>
+                <a href="#how" className="btn btn-secondary">شوف طريقة الشغل</a>
               </div>
-              <div className={styles.metricStack}>
-                {dashboardMetrics.map((metric) => (
-                  <div key={metric.label} className={`${styles.metricCard} ${styles[metric.tone]}`}>
-                    <span>{metric.label}</span>
-                    <strong>{metric.value}</strong>
-                  </div>
+              <div className={`${styles.heroStats} ${styles.anim}`} style={d('.45s')}>
+                {heroStats.map((stat) => (
+                  <div className={styles.stat} key={stat.label}><b>{stat.value}</b><span>{stat.label}</span></div>
                 ))}
               </div>
-              <div className={styles.progressPanel}>
-                <div className={styles.progressHeader}>
-                  <span>تقدم التحصيل</span>
-                  <strong>78%</strong>
-                </div>
-                <div className={styles.progressTrack}>
-                  <span />
-                </div>
+              <div className={`${styles.heroTrust} ${styles.anim}`} style={d('.55s')}>
+                {heroTrustPoints.map((point) => (
+                  <span className={styles.trustI} key={point}>{icon('i-check')} {point}</span>
+                ))}
               </div>
             </div>
-            <div className={styles.floatingInsights}>
-              {insightCards.map((card) => (
-                <div key={card.label} className={styles.insightCard}>
-                  <span>{card.label}</span>
-                  <strong>{card.value}</strong>
-                  <p>{card.desc}</p>
-                </div>
+            <div className={`${styles.heroVisual} ${styles.anim}`} style={d('.3s')}>
+              <div className={`${styles.float} ${styles.f1}`}>
+                <span className={`${styles.fIc} ${styles.o}`}>{icon('i-bell')}</span>
+                <div><b>تنبيه ذكي</b><small>المخزون قل — السكر 1 كجم وصل للحد الأدنى</small></div>
+              </div>
+              <PhoneMockup />
+              <div className={`${styles.float} ${styles.f2}`}>
+                <span className={`${styles.fIc} ${styles.g}`}>{icon('i-sync')}</span>
+                <div><b>آخر مزامنة</b><small>منذ 4 دقائق — كل الفواتير محفوظة ومتزامنة</small></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Business types */}
+        <section className="section">
+          <div className="container">
+            <div className={`${styles.stripHead} reveal`}>
+              <span className="kicker"><span className="dot" />جميع أنواع التجارة</span>
+              <h2>صُمم لكل أنواع التجارة</h2>
+            </div>
+            <div className={`${styles.chips} reveal`} style={d('.1s')}>
+              {businessTypes.map((type) => (
+                <span className={styles.chip} key={type.label}>{icon(type.icon)} {type.label}</span>
               ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Trust strip */}
-      <section className={styles.trustStrip}>
-        <div className="container">
-          <div className={styles.trustLabel}>ثقة المديرين والتجار في</div>
-          <div className={styles.trustGrid}>
-            {['مخازن الجملة|Wholesale warehouses', 'سلاسل السوبر ماركت|Supermarket chains', 'موزعين مواد غذائية|Food distributors', 'محلات التجزئة|Retail stores'].map((item) => {
-              const [ar, en] = item.split('|')
-              return (
-                <div key={ar} className={styles.trustItem}>
-                  <span className={styles.trustAr}>{ar}</span>
-                  <span className={styles.trustEn}>{en}</span>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section id="features" className={styles.featuresSection}>
-        <div className="section container">
-          <div className="section-head">
-            <h2>كل اللي تحتاجه عشان تدير مخزنك</h2>
-            <p>مخزون، فواتير، ديون، تقارير - كل حاجة في تطبيق واحد مصمم للسوق المصري.</p>
-          </div>
-          <div className={`${styles.featureGrid} reveal-group`}>
-            {features.map((f, i) => (
-              <div key={i} className={`${styles.featureCard} reveal-child`} style={{ animationDelay: `${0.05 + i * 0.07}s` }}>
-                <div className={styles.featureIcon}>{f.icon}</div>
-                <h3>{f.title}</h3>
-                <p>{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Mockup */}
-      <section className={styles.mockupSection}>
-        <div className="container">
-          <div className={`${styles.mockupContent} reveal-group`}>
-            <h2 className="reveal-child">شوف بنفسك - لوحة التحكم الرئيسية</h2>
-            <p className="reveal-child">من أول ما تفتح التطبيق، كل الأرقام المهمة قدامك: مبيعات النهارده، عدد المنتجات، إجمالي الديون، وعدد العملاء. ضغطة واحدة توصل لكل حاجة.</p>
-            <button className="btn reveal-child">ابدأ مجاناً</button>
-          </div>
-          <div className={styles.mockupPhone}>
-            <div className={styles.phoneFrame}>
-              <Image src="/assets/iphone-frame.svg" alt="StockFlow Dashboard on iPhone 16 Pro" fill style={{ objectFit: 'contain' }} />
+        {/* Features */}
+        <section id="features" className="section">
+          <div className="container">
+            <div className="sec-head reveal">
+              <span className="kicker"><span className="dot" />المميزات</span>
+              <h2>كل حاجة مخزنك محتاجها، في تطبيق واحد</h2>
+              <p>أدوات مكملة لبعض بداية من الفاتورة لحد التقرير — بدون مجلدات ورق ولا ملفات Excel مبعثرة.</p>
+            </div>
+            <div className={styles.feats}>
+              {features.map((f, i) => (
+                <article className={`${styles.feat} reveal`} style={d(`${i * 0.08}s`)} key={f.title}>
+                  <div className={styles.featIc}>{icon(f.icon)}</div>
+                  <h3>{f.title}</h3>
+                  <p>{f.desc}</p>
+                </article>
+              ))}
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Diff band */}
-      <section className={styles.diffBand}>
-        <div className="section container">
-          <div className="section-head">
-            <h2>مش مجرد تطبيق مخازن - نظام متكامل</h2>
-            <p>فروق حقيقية هتحسها من أول يوم شغل</p>
+        {/* Phone preview */}
+        <section id="phone-preview" className={`section ${styles.phoneSec}`}>
+          <div className="container">
+            <div className="sec-head reveal">
+              <span className="kicker"><span className="dot" />التطبيق</span>
+              <h2>شوف بنفسك — لوحة التحكم الرئيسية</h2>
+              <p>صفحتك الأولى بعد ما تسجل دخولك: أرقامك، رسوم المبيعات، وأحدث الفواتير كلها في شاشة واحدة.</p>
+            </div>
+            <div className={`${styles.preview} reveal`} style={d('.1s')}>
+              <PhonePreviewMockup />
+            </div>
           </div>
-          <div className={`${styles.diffGrid} reveal-group`}>
-            {diffCards.map((d, i) => (
-              <div key={i} className={`${styles.diffCard} reveal-child`} style={{ animationDelay: `${0.05 + i * 0.07}s` }}>
-                <div className={styles.diffIcon}>{d.icon}</div>
-                <h3>{d.title}</h3>
-                <p>{d.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Process / How it works */}
-      <section id="how" className={styles.howSection}>
-        <div className="section container">
-          <div className="section-head">
-            <span className="section-kicker">طريقة العمل</span>
-            <h2>جهز نفسك في ٣ خطوات</h2>
-            <p>مفيش مشروع ترحيل ولا أسبوعين setup. من دقيقة لدقيقة.</p>
-          </div>
-          <div className={`${styles.processGrid} reveal-group`}>
-            {processSteps.map((s, i) => (
-              <div key={i} className={`${styles.processStep} reveal-child`} style={{ animationDelay: `${0.05 + i * 0.10}s` }}>
-                <div className={styles.processIcon}>{s.icon}</div>
-                <h3>{s.title}</h3>
-                <p>{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className={styles.testimonialsSection}>
-        <div className="section container">
-          <div className="section-head">
-            <span className="section-kicker">كلام الناس</span>
-            <h2>اللي جربوا قالوا</h2>
-          </div>
-          <div className={`${styles.testimonialGrid} reveal-group`}>
-            {testimonials.map((t, i) => (
-              <div key={i} className={`${styles.testimonialCard} reveal-child`} style={{ animationDelay: `${0.05 + i * 0.09}s` }}>
-                <div className={styles.quoteMark}>”</div>
-                <div className={styles.testimonialText}>{t.text}</div>
-                <div className={styles.testimonialAuthor}>
-                  <div className={styles.testimonialAvatar} style={{ background: `color-mix(in srgb, ${t.color} 12%, transparent)`, color: t.color }}>
-                    {t.initial}
+        {/* Permissions */}
+        <section id="permissions" className="section">
+          <div className="container">
+            <div className="sec-head reveal">
+              <span className="kicker"><span className="dot" />الصلاحيات</span>
+              <h2>مش fixed roles — حدد بالظبط كل واحد يشوف إيه</h2>
+              <p>ابدأ بقالب جاهز وعدّل عليه زي ما تحب. صلاحيات مرنة حتى على مستوى الحقل، وتقدر تظبطها بالشكل اللي يناسب فريقك.</p>
+            </div>
+            <div className={styles.roles}>
+              {roleCards.map((role, i) => (
+                <article className={`${styles.role} reveal`} style={d(`${i * 0.1}s`)} key={role.title}>
+                  <div className={styles.roleHead}>
+                    <span className={`${styles.roleIc} ${styles[role.color]}`}>{icon(role.icon)}</span>
+                    <div><h3>{role.title}</h3><small>{role.note}</small></div>
                   </div>
-                  <div>
-                    <div className={styles.testimonialName}>{t.name}</div>
-                    <div className={styles.testimonialRole}>{t.role}</div>
-                  </div>
+                  {role.perms.map((perm) => (
+                    <div className={styles.perm} key={perm.label}>
+                      <span>{perm.label}</span>
+                      <span className={`${styles.sw} ${perm.on ? styles.on : ''}`} aria-hidden="true" />
+                    </div>
+                  ))}
+                  <p className={styles.permNote}>{role.noteText}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Integrations + Security */}
+        <section id="integrations" className="section">
+          <div className="container">
+            <div className={styles.grid2}>
+              <article className={`${styles.g2Card} reveal`}>
+                <div className={`${styles.g2Ic} ${styles.green}`}>{icon('i-layers')}</div>
+                <h3>تكاملات جاهزة</h3>
+                <p>شغّل StockFlow مع أدواتك اليومية — التكاملات جاهزة من غير برمجة.</p>
+                <div className={styles.miniChips}>
+                  {integrations.map((item) => (
+                    <span key={item.label}>{icon(item.icon)} {item.label}</span>
+                  ))}
                 </div>
+              </article>
+              <article className={`${styles.g2Card} reveal`} style={d('.1s')}>
+                <div className={`${styles.g2Ic} ${styles.orange}`}>{icon('i-shield')}</div>
+                <h3>الأمان والخصوصية</h3>
+                <p>بياناتك هي ثروتك — بنتعامل معاها كده فعلاً.</p>
+                <ul className={styles.secList}>
+                  {securityPoints.map((point) => (
+                    <li key={point}><span className={styles.liIc}>{icon('i-check')}</span> {point}</li>
+                  ))}
+                </ul>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        {/* Diff band */}
+        <section className={`section ${styles.diff}`}>
+          <div className="container">
+            <div className="sec-head reveal">
+              <span className="kicker"><span className="dot" />ليه StockFlow</span>
+              <h2>مش مجرد تطبيق مخازن — نظام متكامل</h2>
+            </div>
+            <div className={styles.diffGrid}>
+              {diffCards.map((card, i) => (
+                <article className={`${styles.diffCard} reveal`} style={d(`${i * 0.08}s`)} key={card.title}>
+                  <div className={styles.diffIc}>{icon(card.icon)}</div>
+                  <h3>{card.title}</h3>
+                  <p>{card.desc}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* How it works */}
+        <section id="how" className="section">
+          <div className="container">
+            <div className="sec-head reveal">
+              <span className="kicker"><span className="dot" />طريقة العمل</span>
+              <h2>جهز نفسك في ٣ خطوات</h2>
+              <p>من التسجيل لبداية الشغل في أقل من دقيقتين.</p>
+            </div>
+            <div className={styles.steps}>
+              {processSteps.map((step, i) => (
+                <article className={`${styles.step} reveal`} style={d(`${i * 0.1}s`)} key={step.title}>
+                  <div className={styles.stepNum}>{step.num}</div>
+                  <h3>{step.title}</h3>
+                  <p>{step.desc}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials */}
+        <section className="section">
+          <div className="container">
+            <div className="sec-head reveal">
+              <span className="kicker"><span className="dot" />آراء العملاء</span>
+              <h2>بيقولوا إيه عن StockFlow</h2>
+            </div>
+            <div className={styles.tst}>
+              {testimonials.map((t, i) => (
+                <article className={`${styles.tcard} reveal`} style={d(`${i * 0.1}s`)} key={t.name}>
+                  <div className={styles.tq}>{icon('i-q')}</div>
+                  <p>{t.text}</p>
+                  <div className={styles.tcardFoot}>
+                    <span className={`${styles.avatar} ${styles[t.color]}`}>{t.initial}</span>
+                    <div><b>{t.name}</b><small>{t.role}</small></div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing */}
+        <section id="pricing" className="section">
+          <div className="container">
+            <div className="sec-head reveal">
+              <span className="kicker"><span className="dot" />الأسعار</span>
+              <h2>خطة تناسب حجم شغلك</h2>
+              <p>ابدأ مجاناً للأبد، وارتقِ كل ما شغلك يكبر.</p>
+            </div>
+            <PricingToggle />
+          </div>
+        </section>
+
+        {/* CTA band */}
+        <section className="section">
+          <div className="container">
+            <div className={`${styles.ctaWrap} reveal`}>
+              <h2>استعد تتحكم في مخزنك من جوالك</h2>
+              <p>خطة مجانية، والتجهيز في دقيقتين. من غير بطاقة ائتمان، وإلغاء في أي وقت.</p>
+              <div className={styles.ctaActions}>
+                <Link href="/register" className="btn btn-primary">ابدأ مجاناً</Link>
+                <a
+                  className="btn btn-secondary"
+                  href="https://play.google.com/store/apps/details?id=com.example.stockflow"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {icon('i-play')} حمّله من Google Play
+                </a>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Pricing */}
-      <section id="pricing" className={styles.pricingSection}>
-        <div className="container">
-          <div className="section-head" style={{ marginBottom: 'var(--space-5)' }}>
-            <span className="section-kicker">الأسعار والباقات</span>
-            <h2>باقات تناسب كل مرحلة</h2>
-            <p>ابدأ مجاناً وارتقِ مع نمو تجارتك. لا بطاقات ائتمان، لا التزامات، إلغاء في أي وقت.</p>
+        {/* FAQ */}
+        <section id="faq" className="section">
+          <div className="container">
+            <div className="sec-head reveal">
+              <span className="kicker"><span className="dot" />الأسئلة الشائعة</span>
+              <h2>عندك سؤال؟ غالباً الإجابة هنا</h2>
+            </div>
+            <FaqAccordion items={faqItems} />
           </div>
-          <PricingToggle />
-        </div>
-      </section>
-
-      {/* CTA Band */}
-      <section className={styles.ctaBand}>
-        <div className="container reveal-group">
-          <h2 className="reveal-child">استعد تتحكم في مخزنك من جوالك</h2>
-          <p className="reveal-child">خطة مجانية، التجهيز في دقيقتين.</p>
-          <button className="btn reveal-child">ابدأ مجاناً</button>
-          <div className="reveal-child" style={{ marginTop: 'var(--space-5)' }}>
-            <a
-              href="https://play.google.com/store/apps/details?id=com.example.stockflow"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ display: 'inline-flex', textDecoration: 'none' }}
-              aria-label="تحميل من Google Play"
-            >
-              <Image src="/mrgqpgfo-google-play.png" width={180} height={69} alt="Google Play" style={{ borderRadius: 10 }} />
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section id="faq" className={styles.faqSection}>
-        <div className="container reveal-group">
-          <div className="section-label reveal-child">الأسئلة الشائعة</div>
-          <h2 className="section-title reveal-child">إجابات سريعة لأسئلتك</h2>
-          <p className="section-subtitle reveal-child">كل اللي محتاج تعرفه قبل ما تبدا مع StockFlow</p>
-          <FaqAccordion items={faqItems} />
-        </div>
-      </section>
+        </section>
+      </main>
 
       <Footer />
     </>
