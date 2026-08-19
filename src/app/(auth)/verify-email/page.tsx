@@ -1,19 +1,26 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useState, useEffect, type FormEvent } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import Icon from '@/components/Icon'
 import { useAuth } from '@/contexts/AuthContext'
 import styles from '../auth.module.css'
 
 export default function VerifyEmailPage() {
   const { verifyEmail, resendVerification } = useAuth()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [token, setToken] = useState('')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [pending, setPending] = useState(false)
   const [resendPending, setResendPending] = useState(false)
+
+  useEffect(() => {
+    const qEmail = searchParams.get('email')
+    if (qEmail) setEmail(qEmail)
+  }, [searchParams])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -85,10 +92,10 @@ export default function VerifyEmailPage() {
               className={styles.input}
               placeholder="name@example.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              readOnly
               autoComplete="email"
               dir="ltr"
+              style={{ opacity: 0.7, cursor: 'not-allowed' }}
             />
           </div>
 

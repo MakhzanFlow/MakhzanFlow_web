@@ -53,28 +53,38 @@ export async function parseApiResponse<T = unknown>(res: Response): Promise<ApiR
   return data
 }
 
+let refreshPromise: Promise<boolean> | null = null
+
 async function refreshAccessToken(): Promise<boolean> {
-  const refreshToken = getRefreshToken()
-  if (!refreshToken) return false
+  if (refreshPromise) return refreshPromise
 
-  try {
-    const res = await fetch('/api/auth/refresh', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
-    })
+  refreshPromise = (async () => {
+    const refreshToken = getRefreshToken()
+    if (!refreshToken) return false
 
-    const data = await parseApiResponse<{ accessToken: string; refreshToken: string }>(res)
+    try {
+      const res = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken }),
+      })
 
-    if (data.success && data.data) {
-      setTokens(data.data.accessToken, data.data.refreshToken)
-      return true
+      const data = await parseApiResponse<{ accessToken: string; refreshToken: string }>(res)
+
+      if (data.success && data.data) {
+        setTokens(data.data.accessToken, data.data.refreshToken)
+        return true
+      }
+
+      return false
+    } catch {
+      return false
+    } finally {
+      refreshPromise = null
     }
+  })()
 
-    return false
-  } catch {
-    return false
-  }
+  return refreshPromise
 }
 
 export async function apiClient<T>(

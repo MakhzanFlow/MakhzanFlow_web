@@ -2,28 +2,28 @@
 
 import { useState, type FormEvent } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import Icon from '@/components/Icon'
 import { useAuth } from '@/contexts/AuthContext'
 import styles from '../auth.module.css'
 
 export default function RegisterPage() {
   const { register } = useAuth()
+  const router = useRouter()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
   const [pending, setPending] = useState(false)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
-    setSuccess('')
     setPending(true)
     try {
-      const result = await register(name, email, password)
-      setSuccess(result.message || 'تم التسجيل بنجاح. تحقق من بريدك الإلكتروني.')
+      await register(name, email, password)
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`)
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Registration failed')
     } finally {
@@ -53,12 +53,6 @@ export default function RegisterPage() {
             <div className={`${styles.banner} ${styles.bannerError} ${styles.bannerShow}`}>
               <Icon name="alert" />
               {error}
-            </div>
-          )}
-          {success && (
-            <div className={`${styles.banner} ${styles.bannerSuccess} ${styles.bannerShow}`}>
-              <Icon name="check" />
-              {success}
             </div>
           )}
 
