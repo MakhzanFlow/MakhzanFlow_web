@@ -6,6 +6,8 @@ import { apiClient, parseApiResponse, setTokens, getRefreshToken, clearTokens } 
 import type { User } from '@/lib/types'
 
 const COMPANY_COOKIE = 'mf_company_id'
+const ROLE_KEY = 'mf_role'
+const PERMS_KEY = 'mf_permissions'
 
 function getCompanyCookie(): string | null {
   if (typeof window === 'undefined') return null
@@ -23,6 +25,36 @@ function clearCompanyCookie() {
   document.cookie = `${COMPANY_COOKIE}=; path=/; max-age=0`
 }
 
+function getStoredRole(): string | null {
+  if (typeof window === 'undefined') return null
+  return localStorage.getItem(ROLE_KEY)
+}
+
+function getStoredPermissions(): string[] {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem(PERMS_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch { return [] }
+}
+
+function storeRole(role: string | null) {
+  if (typeof window === 'undefined') return
+  if (role) localStorage.setItem(ROLE_KEY, role)
+  else localStorage.removeItem(ROLE_KEY)
+}
+
+function storePermissions(perms: string[]) {
+  if (typeof window === 'undefined') return
+  localStorage.setItem(PERMS_KEY, JSON.stringify(perms))
+}
+
+function clearStoredCompany() {
+  if (typeof window === 'undefined') return
+  localStorage.removeItem(ROLE_KEY)
+  localStorage.removeItem(PERMS_KEY)
+}
+
 interface AuthContextType {
   user: User | null
   loading: boolean
@@ -32,8 +64,11 @@ interface AuthContextType {
   resendVerification: (email: string) => Promise<void>
   logout: () => Promise<void>
   companyId: string | null
-  selectCompany: (id: string) => void
+  selectCompany: (id: string, role?: string, permissions?: string[]) => void
   clearCompany: () => void
+  role: string | null
+  permissions: string[]
+  hasPermission: (key: string) => boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -42,7 +77,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [companyId, setCompanyId] = useState<string | null>(() => getCompanyCookie())
+  const [role, setRole] = useState<string | null>(() => getStoredRole())
+  const [permissions, setPermissions] = useState<string[]>(() => getStoredPermissions())
   const router = useRouter()
+
+  const hasPermission = useCallback((key: string) => {
+    if (role === 'owner' || role === 'admin') return true
+    return permissions.includes(key)
+  }, [role, permissions])
 
   useEffect(() => {
     const token = localStorage.getItem('mf_access_token')
@@ -118,15 +160,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!data.success) throw new Error(data.message || 'Failed to resend')
   }, [])
 
-  const selectCompany = useCallback((id: string) => {
+  const selectCompany = useCallback((id: string, companyRole?: string, companyPermissions?: string[]) => {
     setCompanyId(id)
+    setRole(companyRole ?? null)
+    setPermissions(companyPermissions ?? [])
     setCompanyCookie(id)
+    storeRole(companyRole ?? null)
+    storePermissions(companyPermissions ?? [])
     router.push('/dashboard')
   }, [router])
 
   const clearCompany = useCallback(() => {
     setCompanyId(null)
+    setRole(null)
+    setPermissions([])
     clearCompanyCookie()
+    clearStoredCompany()
     router.push('/select-company')
   }, [router])
 
@@ -142,12 +191,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearTokens()
     setUser(null)
     setCompanyId(null)
+    setRole(null)
+    setPermissions([])
     clearCompanyCookie()
+    clearStoredCompany()
     router.push('/login')
   }, [router])
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, verifyEmail, resendVerification, logout, companyId, selectCompany, clearCompany }}>
+    <AuthContext.Provider value={{ user, loading, login, register, verifyEmail, resendVerification, logout, companyId, selectCompany, clearCompany, role, permissions, hasPermission }}>
       {children}
     </AuthContext.Provider>
   )

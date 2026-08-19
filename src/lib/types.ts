@@ -83,12 +83,14 @@ export interface Activity {
 export interface Product {
   id: string
   name: string
-  sku: string
+  sku: string | null
   barcode: string | null
   price: number
   stock: number
   min_stock: number
   image_url: string | null
+  expiry_date: string | null
+  is_active: boolean
   company_id: string
   created_at: string
   updated_at: string

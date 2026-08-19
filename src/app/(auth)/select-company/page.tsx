@@ -68,7 +68,7 @@ export default function SelectCompanyPage() {
       const data = await parseApiResponse<Company>(res)
       if (!data.success) throw new Error(data.message || 'Failed to create company')
       if (!data.data?.id) throw new Error('Missing company id')
-      selectCompany(data.data.id)
+      selectCompany(data.data.id, 'owner', [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create company')
       setSubmitting(false)
@@ -109,13 +109,13 @@ export default function SelectCompanyPage() {
       const data = await parseApiResponse<{ status?: string; company_id?: string }>(res)
       if (!data.success) {
         if (data.data?.company_id) {
-          selectCompany(data.data.company_id)
+          selectCompany(data.data.company_id, 'member', [])
           return
         }
         throw new Error(data.message || 'Failed to join company')
       }
       if (data.data?.company_id) {
-        selectCompany(data.data.company_id)
+        selectCompany(data.data.company_id, 'member', [])
         return
       }
       setJoinPending(true)
@@ -175,7 +175,18 @@ export default function SelectCompanyPage() {
                 key={company.id}
                 type="button"
                 className={styles.companyRow}
-                onClick={() => selectCompany(company.id)}
+                onClick={() => {
+                  const member = company.company_members?.[0]
+                  const memberRole = member?.role
+                  const memberPerms = member?.permissions
+                    ? Object.entries(member.permissions as Record<string, unknown>).flatMap(([group, actions]) =>
+                        typeof actions === 'object' && actions !== null
+                          ? Object.entries(actions as Record<string, boolean>).filter(([, v]) => v === true).map(([action]) => `${group}.${action}`)
+                          : []
+                      )
+                    : []
+                  selectCompany(company.id, memberRole, memberPerms)
+                }}
               >
                 {company.logo_url ? (
                   <span className={styles.companyAvatar}>
