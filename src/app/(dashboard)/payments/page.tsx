@@ -58,7 +58,7 @@ export default function PaymentsPage() {
                 invoice_id: p.invoice_id,
                 notes: p.notes,
                 company_id: inv.company_id,
-                created_at: p.created_at,
+                created_at: p.created_at ?? '',
               })
             }
           }

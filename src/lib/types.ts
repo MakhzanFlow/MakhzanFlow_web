@@ -110,33 +110,59 @@ export interface Customer {
   updated_at: string
 }
 
-export interface Invoice {
+export type InvoiceStatus = 'pending' | 'paid' | 'partially_paid' | 'canceled'
+
+export interface InvoicePayment {
   id: string
-  invoice_number: string
-  type: 'sale' | 'purchase'
-  status: 'draft' | 'final' | 'paid' | 'partial' | 'cancelled'
-  customer_id: string | null
-  customer_name?: string
-  subtotal: number
-  discount: number
-  tax: number
-  total: number
-  paid_amount: number
+  invoice_id: string
+  amount: number
+  method: 'cash' | 'card' | 'bank_transfer' | 'other'
+  reference_number: string | null
   notes: string | null
-  company_id: string
-  created_at: string
-  updated_at: string
-  invoice_items?: InvoiceItem[]
+  created_at: string | null
 }
 
 export interface InvoiceItem {
   id: string
   invoice_id: string
   product_id: string
-  product_name?: string
   quantity: number
   unit_price: number
-  total: number
+  total_price: number
+  products: { name: string; image_url: string | null; price: number }
+}
+
+export interface InvoiceCustomerRef {
+  id: string
+  name: string
+  phone: string | null
+  email: string | null
+  address: string | null
+}
+
+export interface InvoiceUserRef {
+  id: string
+  name: string
+  email: string
+}
+
+export interface Invoice {
+  id: string
+  company_id: string
+  customer_id: string | null
+  user_id: string | null
+  invoice_number: string
+  status: InvoiceStatus
+  total_amount: number
+  discount_amount: number
+  tax_amount: number
+  due_date: string | null
+  created_at: string | null
+  updated_at: string | null
+  invoice_items?: InvoiceItem[]
+  payments: InvoicePayment[]
+  customers: InvoiceCustomerRef | null
+  users: InvoiceUserRef | null
 }
 
 export interface Payment {
@@ -155,24 +181,18 @@ export interface InvoiceListItem {
   id: string
   company_id: string
   customer_id: string | null
+  user_id: string | null
   invoice_number: string
-  status: string
+  status: InvoiceStatus
   total_amount: number
   discount_amount: number
   tax_amount: number
   due_date: string | null
-  created_at: string
-  updated_at: string
-  customers: { id: string; name: string } | null
-  payments: {
-    id: string
-    invoice_id: string
-    amount: number
-    method: string
-    reference_number: string | null
-    notes: string | null
-    created_at: string
-  }[]
+  created_at: string | null
+  updated_at: string | null
+  customers: InvoiceCustomerRef | null
+  payments: InvoicePayment[]
+  users: InvoiceUserRef | null
 }
 
 export interface JoinRequest {
