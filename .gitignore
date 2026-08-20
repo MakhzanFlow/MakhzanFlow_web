@@ -50,3 +50,5 @@ preview/
 ui_kits/
 logos/
 imagery/
+
+.vercel

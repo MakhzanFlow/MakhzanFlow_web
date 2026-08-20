@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { Suspense, useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import Icon from '@/components/Icon'
 import { useAuth } from '@/contexts/AuthContext'
 import styles from '../auth.module.css'
 
-export default function VerifyEmailPage() {
+function VerifyEmailForm() {
   const { verifyEmail, resendVerification } = useAuth()
   const searchParams = useSearchParams()
   const initialEmail = searchParams.get('email') ?? ''
@@ -133,5 +133,13 @@ export default function VerifyEmailPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Loading...</div>}>
+      <VerifyEmailForm />
+    </Suspense>
   )
 }
