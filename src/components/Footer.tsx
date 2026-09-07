@@ -11,7 +11,7 @@ export default function Footer() {
               <span className={styles.brandMark}>
                 <svg><use href="#i-box" /></svg>
               </span>
-              <span>StockFlow</span>
+              <span>MakhzanFlow</span>
             </a>
             <p>نظام عربي متكامل لإدارة المخازن والتوزيع: فواتير، مخزون، ديون، تقارير، وصلاحيات فريق.</p>
             <div className={styles.fSocial}>
@@ -53,7 +53,7 @@ export default function Footer() {
           </div>
         </div>
         <div className={styles.copyright}>
-          <span>© 2026 StockFlow — جميع الحقوق محفوظة</span>
+          <span>© 2026 MakhzanFlow — جميع الحقوق محفوظة</span>
           <span>
             <Link href="/privacy">سياسة الخصوصية</Link>
             <span className={styles.divider}>·</span>

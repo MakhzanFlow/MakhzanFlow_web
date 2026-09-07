@@ -72,7 +72,7 @@ export default function DeleteAccountPage() {
       {/* Header */}
       <header className={styles.siteHeader}>
         <Link href="/" className={styles.logo}>
-          <Image src="/logos/stockflow-logo.png" alt="StockFlow" width={110} height={36} priority />
+          <Image src="/logos/stockflow-logo.png" alt="MakhzanFlow" width={110} height={36} priority />
         </Link>
         <Link href="/" className={styles.backLink}>← العودة إلى الرئيسية</Link>
       </header>
@@ -81,7 +81,7 @@ export default function DeleteAccountPage() {
       <main className={styles.deletePage}>
         <section className={styles.heroPanel} aria-labelledby="delete-title">
           <span className={styles.kicker}>إدارة الحساب</span>
-          <h1 id="delete-title">طلب حذف حساب StockFlow</h1>
+          <h1 id="delete-title">طلب حذف حساب MakhzanFlow</h1>
           <p>نعامل حذف الحساب كإجراء حساس، لذلك نحتاج بريدك وتأكيدك الصريح قبل بدء المعالجة. الهدف هنا واضح: حماية بياناتك، وليس تعقيد الطريق عليك.</p>
           <div className={styles.noteStack}>
             {deletionNotes.map((note) => (
@@ -230,7 +230,7 @@ export default function DeleteAccountPage() {
 
       {/* Footer */}
       <footer className={styles.siteFooter}>
-        <p>StockFlow © 2026 · <a href="mailto:haazemsaidd@gmail.com">haazemsaidd@gmail.com</a> · 01224661310</p>
+        <p>MakhzanFlow © 2026 · <a href="mailto:haazemsaidd@gmail.com">haazemsaidd@gmail.com</a> · 01224661310</p>
       </footer>
     </div>
   )

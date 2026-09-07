@@ -29,6 +29,9 @@ export type IconName =
   | 'chevLeft'
   | 'chevRight'
   | 'chevDown'
+  | 'lock'
+  | 'clock'
+  | 'hourglass'
 
 const paths: Record<IconName, string> = {
   dashboard:
@@ -71,6 +74,9 @@ const paths: Record<IconName, string> = {
   chevLeft: 'M15 5l-7 7 7 7',
   chevRight: 'm9 18 6-6-6-6',
   chevDown: 'm6 9 6 6 6-6',
+  lock: 'M17 11H7c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2v-6c0-1.1-.9-2-2-2zm-5 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm4-8V7c0-2.2-1.8-4-4-4S8 4.8 8 7v2h8z',
+  clock: 'M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8zm1-13h-2v6l5.2 3.2 1-1.6-4.2-2.6z',
+  hourglass: 'M6 2h12v3c0 2.8-2.3 5.3-6 6.5-3.7-1.2-6-3.7-6-6.5V2zm12 20H6v-3c0-2.8 2.3-5.3 6-6.5 3.7 1.2 6 3.7 6 6.5v3zM12 11.5c2.4-.8 4-2.3 4-4.3V4H8v3.2c0 2 1.6 3.5 4 4.3z',
 }
 
 export default function Icon({ name, size = 24, className, strokeWidth = 2.5 }: IconProps) {

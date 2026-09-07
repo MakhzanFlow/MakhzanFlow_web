@@ -37,7 +37,7 @@ export default function RegisterPage() {
         <span className={styles.brandMark}>
           <Icon name="box" />
         </span>
-        <span className={styles.brandWord}>StockFlow</span>
+        <span className={styles.brandWord}>MakhzanFlow</span>
       </Link>
 
       <div className={styles.card}>

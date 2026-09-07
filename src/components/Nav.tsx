@@ -34,7 +34,7 @@ export default function Nav() {
           <span className={styles.brandMark}>
             <svg><use href="#i-box" /></svg>
           </span>
-          <span>StockFlow</span>
+          <span>MakhzanFlow</span>
         </a>
         <nav className={styles.navLinks} aria-label="التنقل الرئيسي">
           {navLinks.map((link) => (

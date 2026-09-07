@@ -66,14 +66,21 @@
   font-size: 15px;
   margin-bottom: 14px;
 }
-.fCol a {
+.fCol a,
+.fCol button {
   display: block;
   padding: 6px 0;
   color: var(--muted);
   font-size: 14.5px;
   transition: color .2s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: inherit;
 }
-.fCol a:hover {
+.fCol a:hover,
+.fCol button:hover {
   color: var(--accent);
 }
 .fContact {

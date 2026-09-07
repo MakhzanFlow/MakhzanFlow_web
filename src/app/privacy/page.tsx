@@ -46,13 +46,13 @@ export default function PrivacyPage() {
       {/* ── Header ───────────────────────────────────────────── */}
       <header className={styles.siteHeader} ref={headerRef} role="banner">
         <div className={styles.siteHeaderInner}>
-          <Link href="/" className={styles.siteLogo} aria-label="StockFlow">
+          <Link href="/" className={styles.siteLogo} aria-label="MakhzanFlow">
             <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
               <rect width="32" height="32" rx="8" fill="#0f5132" />
               <path d="M8 16h16M16 8v16" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" />
               <circle cx="16" cy="16" r="4" stroke="#fff" strokeWidth="2" />
             </svg>
-            StockFlow
+            MakhzanFlow
           </Link>
 
           <nav className={styles.siteNav} role="navigation" aria-label="التنقل الرئيسي">
@@ -126,7 +126,7 @@ export default function PrivacyPage() {
               <p className={styles.policySectionSubtitle}>نظرة عامة على سياسة الخصوصية ونطاق التطبيق</p>
             </div>
             <div className={styles.policySectionContent}>
-              <p>مرحباً بكم في سياسة خصوصية <strong>StockFlow</strong> («نحن»، «تطبيقنا»، «الخدمة»). توضح هذه السياسة كيفية جمعنا واستخدامنا وحمايتنا لمعلوماتك عند استخدامك لتطبيق إدارة المخازن والتوزيع الخاص بنا.</p>
+              <p>مرحباً بكم في سياسة خصوصية <strong>MakhzanFlow</strong> («نحن»، «تطبيقنا»، «الخدمة»). توضح هذه السياسة كيفية جمعنا واستخدامنا وحمايتنا لمعلوماتك عند استخدامك لتطبيق إدارة المخازن والتوزيع الخاص بنا.</p>
               <p>باستخدامك للتطبيق، فإنك توافق على الممارسات الموضحة في هذه السياسة. نحن ملتزمون بحماية خصوصيتك وبياناتك وفقاً للقوانين المصرية المعمول بها، بما في ذلك قانون حماية البيانات الشخصية رقم ١٥١ لسنة ٢٠٢٠.</p>
               <p className={styles.mutedText}>تاريخ السريان: ١٠ يوليو ٢٠٢٦</p>
             </div>
@@ -421,7 +421,7 @@ export default function PrivacyPage() {
                     <circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" />
                     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                   </svg>
-                  <span>الموقع: <a href="https://stockflow.app" target="_blank" rel="noopener">stockflow.app</a></span>
+                  <span>الموقع: <a href="https://MakhzanFlow.app" target="_blank" rel="noopener">MakhzanFlow.app</a></span>
                 </div>
               </div>
             </div>
@@ -441,7 +441,7 @@ export default function PrivacyPage() {
                   <path d="M8 16h16M16 8v16" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" />
                   <circle cx="16" cy="16" r="4" stroke="#fff" strokeWidth="2" />
                 </svg>
-                StockFlow
+                MakhzanFlow
               </h4>
               <p>نظام إدارة المخازن والتوزيع للمحلات وسلاسل السوبر ماركت - فواتير، مخزون، ديون، تقارير. عربي أولاً، مصمم للسوق المصري.</p>
             </div>
@@ -453,7 +453,7 @@ export default function PrivacyPage() {
             </div>
             <div className={styles.siteFooterCol}>
               <h5>الشركة</h5>
-              <Link href="#">عن StockFlow</Link>
+              <Link href="#">عن MakhzanFlow</Link>
               <Link href="#">المدونة</Link>
               <Link href="#">وظائف</Link>
             </div>
@@ -465,7 +465,7 @@ export default function PrivacyPage() {
             </div>
           </div>
           <div className={styles.siteFooterBottom}>
-            <p>© 2026 StockFlow · جميع الحقوق محفوظة</p>
+            <p>© 2026 MakhzanFlow · جميع الحقوق محفوظة</p>
             <div className={styles.siteFooterBottomLinks}>
               <Link href="/privacy">الخصوصية</Link>
               <Link href="/delete-account">حذف الحساب</Link>
