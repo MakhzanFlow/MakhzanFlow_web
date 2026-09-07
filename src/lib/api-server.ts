@@ -12,7 +12,9 @@ export async function apiServer<T>(
   const { token, companyId, ...fetchOptions } = options
 
   const headers = new Headers(fetchOptions.headers)
-  headers.set('Content-Type', 'application/json')
+  if (!(fetchOptions.body instanceof FormData)) {
+    headers.set('Content-Type', 'application/json')
+  }
 
   if (token) {
     headers.set('Authorization', `Bearer ${token}`)

@@ -3,8 +3,10 @@ import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('mf_access_token')?.value
+  const refreshToken = request.cookies.get('mf_refresh_token')?.value
   const companyId = request.cookies.get('mf_company_id')?.value
   const pathname = request.nextUrl.pathname
+  const hasSession = Boolean(token || refreshToken)
 
   const isAuthPage =
     pathname.startsWith('/login') ||
@@ -12,25 +14,26 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/verify-email')
 
   const isSelectCompany = pathname.startsWith('/select-company')
+  const isPendingPage = pathname.startsWith('/pending')
 
   const isPublicPage =
     pathname === '/' ||
     pathname === '/privacy' ||
     pathname.startsWith('/delete-account')
 
-  if (!token && !isAuthPage && !isPublicPage) {
+  if (!hasSession && !isAuthPage && !isPublicPage) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  if (token && isAuthPage) {
+  if (hasSession && isAuthPage) {
     return NextResponse.redirect(new URL('/select-company', request.url))
   }
 
-  if (token && !companyId && !isSelectCompany && !isPublicPage) {
+  if (hasSession && !companyId && !isSelectCompany && !isPendingPage && !isPublicPage) {
     return NextResponse.redirect(new URL('/select-company', request.url))
   }
 
-  if (token && companyId && isSelectCompany) {
+  if (hasSession && companyId && (isSelectCompany || isPendingPage)) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
@@ -47,6 +50,7 @@ export const config = {
     '/reports/:path*',
     '/settings/:path*',
     '/select-company',
+    '/pending',
     '/login',
     '/register',
     '/verify-email',

@@ -6,6 +6,7 @@ export interface User {
   verified_at: string | null
   created_at: string
   updated_at: string
+  company_id?: string | null
 }
 
 export interface ApiResponse<T = unknown> {
