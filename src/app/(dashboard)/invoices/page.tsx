@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { apiClient } from '@/lib/api-client'
 import Icon from '@/components/Icon'
 import { useToast } from '@/components/Toast'
+import NoPermission from '@/components/NoPermission'
 import type { Invoice, InvoiceStatus, Product, Customer } from '@/lib/types'
 import styles from '../dashboard/dashboard.module.css'
 
@@ -40,6 +41,15 @@ interface LineItem {
 
 const emptyLine: LineItem = { productId: '', productName: '', qty: '1', price: '' }
 
+function parseInvoiceNumber(value: string): number {
+  const normalized = value
+    .trim()
+    .replace(/,/g, '')
+    .replace(/[٠-٩]/g, (digit) => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit)))
+  const parsed = Number(normalized)
+  return Number.isFinite(parsed) ? parsed : 0
+}
+
 export default function InvoicesPage() {
   const { companyId, hasPermission } = useAuth()
   const { toast } = useToast()
@@ -47,6 +57,7 @@ export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [forbidden, setForbidden] = useState(false)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | InvoiceStatus>('all')
   const [startDate, setStartDate] = useState('')
@@ -60,7 +71,7 @@ export default function InvoicesPage() {
 
   const canCreate = hasPermission('invoices.create')
   const canUpdate = hasPermission('invoices.update')
-  const canCancel = hasPermission('invoices.cancel')
+  const canCancel = hasPermission('invoices.delete')
 
   const fetchInvoices = useCallback(() => {
     if (!companyId) return
@@ -76,12 +87,18 @@ export default function InvoicesPage() {
       .then((res) => {
         if (cancelled) return
         setError('')
+        setForbidden(false)
         if (res.success && res.data) {
           setInvoices(res.data ?? [])
           setPagination(res.pagination ?? { total: 0, pages: 0 })
         }
       })
-      .catch(() => { if (!cancelled) setError('Failed to load invoices') })
+      .catch((err: unknown) => {
+        if (cancelled) return
+        const e = err as { status?: number; isForbidden?: boolean; message?: string }
+        if (e.status === 403 || e.isForbidden) setForbidden(true)
+        else setError(e.message || 'Failed to load invoices')
+      })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
   }, [companyId, page, search, statusFilter, startDate, endDate, customerFilterId])
@@ -172,10 +189,10 @@ export default function InvoicesPage() {
     setProductPickerOpen(false)
   }
 
-  const lineTotal = (l: LineItem): number => (Number(l.qty) || 0) * (Number(l.price) || 0)
+  const lineTotal = (l: LineItem): number => parseInvoiceNumber(l.qty) * parseInvoiceNumber(l.price)
   const subtotal = form.lines.reduce((sum, l) => sum + lineTotal(l), 0)
-  const discountNum = parseFloat(form.discount) || 0
-  const taxNum = parseFloat(form.tax) || 0
+  const discountNum = parseInvoiceNumber(form.discount)
+  const taxNum = parseInvoiceNumber(form.tax)
   const grandTotal = Math.max(0, subtotal - discountNum + taxNum)
 
   const handleCreate = async (e: FormEvent) => {
@@ -190,17 +207,21 @@ export default function InvoicesPage() {
       const payload: Record<string, unknown> = {
         items: validLines.map((l) => ({
           product_id: l.productId,
-          quantity: Number(l.qty) || 1,
-          unit_price: Number(l.price) || 0,
+          quantity: parseInvoiceNumber(l.qty) || 1,
         })),
       }
       if (form.customerId) payload.customer_id = form.customerId
       if (discountNum > 0) payload.discount_amount = discountNum
       if (taxNum > 0) payload.tax_amount = taxNum
       if (form.dueDate) payload.due_date = form.dueDate
-      if (form.paymentAmount && Number(form.paymentAmount) > 0) {
+      const paymentAmount = parseInvoiceNumber(form.paymentAmount)
+      if (paymentAmount > grandTotal) {
+        setForm((prev) => ({ ...prev, error: 'مبلغ الدفع لا يمكن أن يتجاوز إجمالي الفاتورة' }))
+        return
+      }
+      if (paymentAmount > 0) {
         payload.payment = {
-          amount: Number(form.paymentAmount),
+          amount: paymentAmount,
           method: form.paymentMethod,
           reference_number: form.paymentRef || null,
           notes: form.paymentNotes || null,
@@ -215,7 +236,9 @@ export default function InvoicesPage() {
       toast('تم إنشاء الفاتورة بنجاح', 'success')
       closeCreate()
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'حدث خطأ'
+      const apiError = err as { data?: { errors?: { message?: string }[]; message?: string } }
+      const fieldErrors = apiError.data?.errors?.map((item) => item.message).filter(Boolean).join('، ')
+      const msg = fieldErrors || (err instanceof Error ? err.message : 'حدث خطأ')
       if (msg.includes('stock') || msg.includes('Stock')) {
         setForm((prev) => ({ ...prev, error: 'لا يوجد مخزون كافٍ لبعض المنتجات' }))
       } else if (msg.includes('permission') || msg.includes('Forbidden') || msg.includes('403')) {
@@ -330,7 +353,15 @@ export default function InvoicesPage() {
       </header>
 
       <div className={styles.screenBody}>
-        <div className={styles.toolbar}>
+        {forbidden ? (
+          <NoPermission
+            requiredPermission="invoices.read"
+            title="ليس لديك صلاحية لعرض الفواتير"
+            description="تحتاج إلى صلاحية عرض الفواتير. تواصل مع مسؤول الشركة للحصول على الوصول."
+          />
+        ) : (
+          <>
+            <div className={styles.toolbar}>
           <div className={styles.tabGroup}>
             {statusTabs.map((t) => (
               <button
@@ -498,6 +529,8 @@ export default function InvoicesPage() {
             )}
           </div>
         )}
+          </>
+        )}
       </div>
 
       {createOpen && (
@@ -554,14 +587,9 @@ export default function InvoicesPage() {
                       value={line.qty}
                       onChange={(e) => updateLine(i, { qty: e.target.value })}
                     />
-                    <input
-                      type="text"
-                      className={styles.price}
-                      inputMode="numeric"
-                      placeholder="٠"
-                      value={line.price}
-                      onChange={(e) => updateLine(i, { price: e.target.value })}
-                    />
+                    <span className={styles.price} aria-label="سعر المنتج">
+                      {line.price ? `${Number(line.price).toLocaleString('ar-EG')} ج.م` : 'اختر منتجا'}
+                    </span>
                     <span className={styles.lineTotal}>
                       {lineTotal(line).toLocaleString('ar-EG')} ج.م
                     </span>
@@ -820,16 +848,36 @@ export default function InvoicesPage() {
 
 function CustomerPickerModal({ companyId, onSelect, onClose }: { companyId: string | null; onSelect: (c: Customer) => void; onClose: () => void }) {
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<Customer[]>([])
+  const [customers, setCustomers] = useState<Customer[]>([])
+  const [page, setPage] = useState(1)
+  const pageSize = 10
 
   useEffect(() => {
-    if (!companyId || query.length < 1) return
+    if (!companyId) return
     let cancelled = false
-    apiClient<Customer[]>(`/customers?limit=20&search=${encodeURIComponent(query)}`)
-      .then((res) => { if (!cancelled && res.success) setResults(res.data ?? []) })
-      .catch(() => {})
+    const loadCustomers = async () => {
+      const allCustomers: Customer[] = []
+      let currentPage = 1
+      let totalPages = 1
+      while (currentPage <= totalPages) {
+        const res = await apiClient<Customer[]>(`/customers?page=${currentPage}&limit=100`)
+        if (!res.success) return
+        allCustomers.push(...(res.data ?? []))
+        totalPages = res.pagination?.pages ?? 1
+        currentPage += 1
+      }
+      if (!cancelled) setCustomers(allCustomers)
+    }
+    loadCustomers().catch(() => {})
     return () => { cancelled = true }
-  }, [companyId, query])
+  }, [companyId])
+
+  const normalizedQuery = query.trim().toLowerCase()
+  const results = customers.filter((customer) =>
+    !normalizedQuery || customer.name.toLowerCase().includes(normalizedQuery) || (customer.phone ?? '').toLowerCase().includes(normalizedQuery)
+  )
+  const pages = Math.max(1, Math.ceil(results.length / pageSize))
+  const visibleResults = results.slice((page - 1) * pageSize, page * pageSize)
 
   return (
     <div className={`${styles.modalBackdrop} ${styles.modalBackdropOpen}`} onClick={onClose}>
@@ -848,16 +896,16 @@ function CustomerPickerModal({ companyId, onSelect, onClose }: { companyId: stri
               className={styles.searchInput}
               placeholder="بحث بالاسم أو رقم الهاتف..."
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => { setQuery(e.target.value); setPage(1) }}
               autoFocus
             />
           </div>
-          {query.length >= 1 && results.length === 0 && (
+          {results.length === 0 && (
             <p style={{ textAlign: 'center', color: 'var(--muted)', padding: 24 }}>لا توجد نتائج</p>
           )}
-          {results.length > 0 && (
+          {visibleResults.length > 0 && (
             <div className={styles.card} style={{ maxHeight: 400, overflow: 'auto' }}>
-              {results.map((c) => (
+              {visibleResults.map((c) => (
                 <button
                   key={c.id}
                   type="button"
@@ -875,6 +923,13 @@ function CustomerPickerModal({ companyId, onSelect, onClose }: { companyId: stri
               ))}
             </div>
           )}
+          {results.length > pageSize && (
+            <div className={styles.pager}>
+              <button type="button" className={styles.pg} disabled={page <= 1} onClick={() => setPage((value) => value - 1)}>السابق</button>
+              <span className={styles.count}>{page} / {pages}</span>
+              <button type="button" className={styles.pg} disabled={page >= pages} onClick={() => setPage((value) => value + 1)}>التالي</button>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -883,16 +938,36 @@ function CustomerPickerModal({ companyId, onSelect, onClose }: { companyId: stri
 
 function ProductPickerModal({ companyId, onSelect, onClose }: { companyId: string | null; onSelect: (p: Product) => void; onClose: () => void }) {
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<Product[]>([])
+  const [products, setProducts] = useState<Product[]>([])
+  const [page, setPage] = useState(1)
+  const pageSize = 10
 
   useEffect(() => {
-    if (!companyId || query.length < 1) return
+    if (!companyId) return
     let cancelled = false
-    apiClient<Product[]>(`/products?limit=20&search=${encodeURIComponent(query)}`)
-      .then((res) => { if (!cancelled && res.success) setResults(res.data ?? []) })
-      .catch(() => {})
+    const loadProducts = async () => {
+      const allProducts: Product[] = []
+      let currentPage = 1
+      let totalPages = 1
+      while (currentPage <= totalPages) {
+        const res = await apiClient<Product[]>(`/products?page=${currentPage}&limit=100`)
+        if (!res.success) return
+        allProducts.push(...(res.data ?? []))
+        totalPages = res.pagination?.pages ?? 1
+        currentPage += 1
+      }
+      if (!cancelled) setProducts(allProducts)
+    }
+    loadProducts().catch(() => {})
     return () => { cancelled = true }
-  }, [companyId, query])
+  }, [companyId])
+
+  const normalizedQuery = query.trim().toLowerCase()
+  const results = products.filter((product) =>
+    !normalizedQuery || product.name.toLowerCase().includes(normalizedQuery) || (product.sku ?? '').toLowerCase().includes(normalizedQuery) || (product.barcode ?? '').toLowerCase().includes(normalizedQuery)
+  )
+  const pages = Math.max(1, Math.ceil(results.length / pageSize))
+  const visibleResults = results.slice((page - 1) * pageSize, page * pageSize)
 
   return (
     <div className={`${styles.modalBackdrop} ${styles.modalBackdropOpen}`} onClick={onClose}>
@@ -911,16 +986,16 @@ function ProductPickerModal({ companyId, onSelect, onClose }: { companyId: strin
               className={styles.searchInput}
               placeholder="بحث بالاسم أو الكود..."
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => { setQuery(e.target.value); setPage(1) }}
               autoFocus
             />
           </div>
-          {query.length >= 1 && results.length === 0 && (
+          {results.length === 0 && (
             <p style={{ textAlign: 'center', color: 'var(--muted)', padding: 24 }}>لا توجد نتائج</p>
           )}
-          {results.length > 0 && (
+          {visibleResults.length > 0 && (
             <div className={styles.card} style={{ maxHeight: 400, overflow: 'auto' }}>
-              {results.map((p) => (
+              {visibleResults.map((p) => (
                 <button
                   key={p.id}
                   type="button"
@@ -938,6 +1013,13 @@ function ProductPickerModal({ companyId, onSelect, onClose }: { companyId: strin
                   </div>
                 </button>
               ))}
+            </div>
+          )}
+          {results.length > pageSize && (
+            <div className={styles.pager}>
+              <button type="button" className={styles.pg} disabled={page <= 1} onClick={() => setPage((value) => value - 1)}>السابق</button>
+              <span className={styles.count}>{page} / {pages}</span>
+              <button type="button" className={styles.pg} disabled={page >= pages} onClick={() => setPage((value) => value + 1)}>التالي</button>
             </div>
           )}
         </div>
