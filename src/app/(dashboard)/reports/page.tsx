@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { apiClient } from '@/lib/api-client'
 import Icon from '@/components/Icon'
+import NoPermission from '@/components/NoPermission'
 import type { MonthlyReport, LowStockProduct, Activity } from '@/lib/types'
 import styles from '../dashboard/dashboard.module.css'
 
@@ -23,37 +24,52 @@ export default function ReportsPage() {
   const [activities, setActivities] = useState<Activity[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [forbidden, setForbidden] = useState(false)
+  // Same StrictMode dev double-mount guard as the dashboard page.
+  const fetchedForRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (!companyId) return
+    const key = `${companyId}:${tab}`
+    if (fetchedForRef.current === key) return
+    fetchedForRef.current = key
     let cancelled = false
 
     const fail = (msg: string) => { if (!cancelled) setError(msg) }
     const done = () => { if (!cancelled) setLoading(false) }
 
+    const handleForbidden = (err: unknown) => {
+      const e = err as { status?: number; isForbidden?: boolean }
+      if (e.status === 403 || e.isForbidden) {
+        if (!cancelled) setForbidden(true)
+        return true
+      }
+      return false
+    }
+
     if (tab === 'monthly') {
       apiClient<MonthlyReport[]>('/dashboard/monthly-report')
         .then((res) => {
           if (cancelled) return
-          if (res.success && res.data) setMonthlyData(res.data)
+          if (res.success && res.data) { setMonthlyData(res.data); setForbidden(false) }
         })
-        .catch(() => fail('Failed to load monthly report'))
+        .catch((err) => { if (!handleForbidden(err)) fail('Failed to load monthly report') })
         .finally(done)
     } else if (tab === 'low-stock') {
       apiClient<LowStockProduct[]>(`/dashboard/low-stock`)
         .then((res) => {
           if (cancelled) return
-          if (res.success && res.data) setLowStock(res.data)
+          if (res.success && res.data) { setLowStock(res.data); setForbidden(false) }
         })
-        .catch(() => fail('Failed to load low stock products'))
+        .catch((err) => { if (!handleForbidden(err)) fail('Failed to load low stock products') })
         .finally(done)
     } else {
       apiClient<Activity[]>(`/dashboard/activity`)
         .then((res) => {
           if (cancelled) return
-          if (res.success && res.data) setActivities(res.data)
+          if (res.success && res.data) { setActivities(res.data); setForbidden(false) }
         })
-        .catch(() => fail('Failed to load activity log'))
+        .catch((err) => { if (!handleForbidden(err)) fail('Failed to load activity log') })
         .finally(done)
     }
 
@@ -76,28 +92,36 @@ export default function ReportsPage() {
       </header>
 
       <div className={styles.screenBody}>
-        <div className={styles.toolbar}>
-          <div className={styles.tabGroup}>
-            {tabs.map((t) => (
-              <button
-                key={t.key}
-                type="button"
-                className={`${styles.tabBtn} ${tab === t.key ? styles.tabBtnActive : ''}`}
-                onClick={() => setTab(t.key)}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        {forbidden ? (
+          <NoPermission
+            requiredPermission="reports.read"
+            title="ليس لديك صلاحية لعرض التقارير"
+            description="تحتاج إلى صلاحية عرض التقارير. تواصل مع مسؤول الشركة للحصول على الوصول."
+          />
+        ) : (
+          <>
+            <div className={styles.toolbar}>
+              <div className={styles.tabGroup}>
+                {tabs.map((t) => (
+                  <button
+                    key={t.key}
+                    type="button"
+                    className={`${styles.tabBtn} ${tab === t.key ? styles.tabBtnActive : ''}`}
+                    onClick={() => { setTab(t.key); setForbidden(false); setError('') }}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-        {loading && (
-          <div className={styles.loading}>
-            <div className={styles.spinner} />
-          </div>
-        )}
+            {loading && (
+              <div className={styles.loading}>
+                <div className={styles.spinner} />
+              </div>
+            )}
 
-        {!loading && error && <div className={styles.errorBox}>{error}</div>}
+            {!loading && error && <div className={styles.errorBox}>{error}</div>}
 
         {!loading && !error && tab === 'monthly' && (
           <div className={styles.card}>
@@ -212,6 +236,8 @@ export default function ReportsPage() {
               </div>
             )}
           </div>
+        )}
+          </>
         )}
       </div>
     </div>
