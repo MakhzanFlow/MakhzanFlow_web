@@ -1,7 +1,8 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis } from 'recharts'
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
+import { apiClient } from '@/lib/api-client'
 import styles from './dashboard.module.css'
 
 export interface SalesPoint {
@@ -23,16 +24,34 @@ function formatDate(value: string): string {
 }
 
 export function SalesChart({ data }: { data: SalesPoint[] }) {
-  const [range, setRange] = useState<Range>('90d')
+  const [range, setRange] = useState<Range>('7d')
+  const [sales, setSales] = useState(data)
+  const [loading, setLoading] = useState(false)
+
+  async function changeRange(nextRange: Range) {
+    setRange(nextRange)
+    if (nextRange === '7d') {
+      setSales(data)
+      return
+    }
+
+    setLoading(true)
+    try {
+      const response = await apiClient<SalesPoint[]>(`/dashboard/sales?range=${nextRange}`)
+      if (response.success && response.data) setSales(response.data)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const filtered = useMemo(() => {
-    if (data.length === 0) return []
-    const reference = new Date(data[data.length - 1].date)
+    if (sales.length === 0) return []
+    const reference = new Date(sales[sales.length - 1].date)
     const daysToSubtract = range === '7d' ? 7 : range === '30d' ? 30 : 90
     const startDate = new Date(reference)
     startDate.setDate(startDate.getDate() - daysToSubtract)
-    return data.filter((point) => new Date(point.date) >= startDate)
-  }, [data, range])
+    return sales.filter((point) => new Date(point.date) >= startDate)
+  }, [sales, range])
 
   if (data.length === 0) return null
 
@@ -49,7 +68,8 @@ export function SalesChart({ data }: { data: SalesPoint[] }) {
               key={r.key}
               type="button"
               className={`${styles.rangeTab}${range === r.key ? ` ${styles.rangeTabActive}` : ''}`}
-              onClick={() => setRange(r.key)}
+              onClick={() => void changeRange(r.key)}
+              disabled={loading}
             >
               {r.label}
             </button>
@@ -65,7 +85,8 @@ export function SalesChart({ data }: { data: SalesPoint[] }) {
                 <stop offset="95%" stopColor="var(--accent)" stopOpacity={0.02} />
               </linearGradient>
             </defs>
-            <CartesianGrid vertical={false} stroke="var(--border)" strokeDasharray="3 3" />
+            <CartesianGrid vertical={false} stroke="transparent" />
+            <YAxis hide domain={['dataMin', 'dataMax']} />
             <XAxis
               dataKey="date"
               tickLine={false}
@@ -83,8 +104,9 @@ export function SalesChart({ data }: { data: SalesPoint[] }) {
               type="natural"
               dataKey="amount"
               stroke="var(--accent)"
-              strokeWidth={2}
+              strokeWidth={3}
               fill="url(#salesFill)"
+              activeDot={{ r: 6, fill: 'var(--accent-secondary)', stroke: '#fff', strokeWidth: 3 }}
             />
           </AreaChart>
         </ResponsiveContainer>
