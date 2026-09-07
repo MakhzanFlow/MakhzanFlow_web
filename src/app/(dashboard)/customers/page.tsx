@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { apiClient } from '@/lib/api-client'
 import Icon from '@/components/Icon'
 import { useToast } from '@/components/Toast'
+import NoPermission, { InlineNoPermission } from '@/components/NoPermission'
 import type { Customer } from '@/lib/types'
 import styles from '../dashboard/dashboard.module.css'
 
@@ -37,10 +38,12 @@ export default function CustomersPage() {
   const [page, setPage] = useState(1)
   const [pagination, setPagination] = useState({ total: 0, pages: 0 })
 
+  const [forbidden, setForbidden] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [modalTitle, setModalTitle] = useState('عميل جديد')
   const [form, setForm] = useState<CustomerForm>(emptyForm)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
@@ -62,9 +65,15 @@ export default function CustomersPage() {
         if (res.success && res.data) {
           setCustomers(res.data ?? [])
           setPagination(res.pagination ?? { total: 0, pages: 0 })
+          setForbidden(false)
         }
       })
-      .catch(() => { if (!cancelled) setError('Failed to load customers') })
+      .catch((err: unknown) => {
+        if (cancelled) return
+        const e = err as { status?: number; isForbidden?: boolean; message?: string }
+        if (e.status === 403 || e.isForbidden) setForbidden(true)
+        else setError(e.message || 'Failed to load customers')
+      })
       .finally(() => { if (!cancelled) setLoading(false) })
 
     return () => { cancelled = true }
@@ -78,6 +87,7 @@ export default function CustomersPage() {
   const openNew = () => {
     setForm(emptyForm)
     setEditingId(null)
+    setImageFile(null)
     setModalTitle('عميل جديد')
     setModalOpen(true)
   }
@@ -91,6 +101,7 @@ export default function CustomersPage() {
       openingBalance: '',
     })
     setEditingId(c.id)
+    setImageFile(null)
     setModalTitle('تعديل العميل')
     setModalOpen(true)
   }
@@ -99,6 +110,7 @@ export default function CustomersPage() {
     setModalOpen(false)
     setForm(emptyForm)
     setEditingId(null)
+    setImageFile(null)
     setError('')
   }
 
@@ -128,6 +140,17 @@ export default function CustomersPage() {
         if (data.data) {
           setCustomers((prev) => prev.map((c) => (c.id === editingId ? { ...c, ...data.data } : c)))
         }
+        if (imageFile) {
+          const formData = new FormData()
+          formData.append('image', imageFile)
+          const image = await apiClient<{ image_url: string | null }>(`/customers/${editingId}`, {
+            method: 'POST',
+            body: formData,
+          })
+          if (image.data?.image_url) {
+            setCustomers((prev) => prev.map((c) => (c.id === editingId ? { ...c, image_url: image.data!.image_url } : c)))
+          }
+        }
         toast('تم تحديث العميل بنجاح', 'success')
       } else {
         const data = await apiClient<Customer>('/customers', {
@@ -137,6 +160,17 @@ export default function CustomersPage() {
         if (!data.success) throw new Error(data.message || 'Failed to create customer')
         if (data.data) {
           setCustomers((prev) => [data.data!, ...prev])
+        }
+        if (imageFile && data.data?.id) {
+          const formData = new FormData()
+          formData.append('image', imageFile)
+          const image = await apiClient<{ image_url: string | null }>(`/customers/${data.data.id}`, {
+            method: 'POST',
+            body: formData,
+          })
+          if (image.data?.image_url) {
+            setCustomers((prev) => prev.map((c) => (c.id === data.data!.id ? { ...c, image_url: image.data!.image_url } : c)))
+          }
         }
         toast('تم إنشاء العميل بنجاح', 'success')
       }
@@ -200,26 +234,48 @@ export default function CustomersPage() {
       </header>
 
       <div className={styles.screenBody}>
-        <div className={styles.toolbar}>
-          <div className={styles.search}>
-            <Icon name="search" size={18} />
-            <input
-              type="search"
-              className={styles.searchInput}
-              placeholder="بحث عن عميل..."
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-            />
-          </div>
-        </div>
+        {forbidden ? (
+          <NoPermission
+            requiredPermission="customers.read"
+            title="ليس لديك صلاحية لعرض العملاء"
+            description="تحتاج إلى صلاحية عرض العملاء. تواصل مع مسؤول الشركة للحصول على الوصول."
+          />
+        ) : (
+          <>
+            <div className={styles.toolbar}>
+              <div className={styles.search}>
+                <Icon name="search" size={18} />
+                <input
+                  type="search"
+                  className={styles.searchInput}
+                  placeholder="بحث عن عميل..."
+                  value={search}
+                  onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+                />
+              </div>
+              {!canCreate && (
+                <span style={{ fontSize: 12, color: 'var(--muted)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <Icon name="lock" size={14} /> ليس لديك صلاحية الإنشاء
+                </span>
+              )}
+            </div>
 
-        {loading && (
-          <div className={styles.loading}>
-            <div className={styles.spinner} />
-          </div>
-        )}
+            {loading && (
+              <div className={styles.loading}>
+                <div className={styles.spinner} />
+              </div>
+            )}
 
-        {!loading && error && <div className={styles.errorBox}>{error}</div>}
+            {!loading && error && (
+              <div>
+                <div className={styles.errorBox}>{error}</div>
+                {(error.includes('صلاحية') || error.includes('permission')) && (
+                  <div style={{ marginTop: 12 }}>
+                    <InlineNoPermission message={error} />
+                  </div>
+                )}
+              </div>
+            )}
 
         {!loading && !error && customers.length === 0 && (
           <div className={`${styles.card} ${styles.emptyState}`}>
@@ -318,6 +374,8 @@ export default function CustomersPage() {
             )}
           </div>
         )}
+          </>
+        )}
       </div>
 
       {modalOpen && (
@@ -373,6 +431,14 @@ export default function CustomersPage() {
                     value={form.address}
                     onChange={(e) => setForm({ ...form, address: e.target.value })}
                     placeholder="العنوان (اختياري)"
+                  />
+                </div>
+                <div className={`${styles.field} ${styles.fieldFull}`}>
+                  <label>صورة العميل</label>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
                   />
                 </div>
                 {!editingId && (
