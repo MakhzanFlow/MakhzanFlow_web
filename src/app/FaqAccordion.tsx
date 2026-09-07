@@ -27,7 +27,7 @@ export default function FaqAccordion({ items }: FaqAccordionProps) {
         const answerId = `faq-answer-${index}`
 
         return (
-          <article key={item.q} className={`${styles.faqItem} ${isOpen ? styles.open : ''} reveal`} style={{ '--d': `${index * 0.06}s` } as CSSProperties}>
+          <article key={item.q} className={`${styles.faqItem} ${isOpen ? styles.open : ''}`} style={{ '--d': `${index * 0.06}s` } as CSSProperties}>
             <button
               type="button"
               className={styles.faqQ}

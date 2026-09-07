@@ -5,13 +5,13 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: {
-    default: 'StockFlow - نظام إدارة المخازن والتوزيع',
-    template: '%s | StockFlow',
+    default: 'MakhzanFlow - نظام إدارة المخازن والتوزيع',
+    template: '%s | MakhzanFlow',
   },
   description: 'نظام إدارة المخازن والتوزيع للمحلات والسوبر ماركت - فواتير، مخزون، ديون العملاء، تقارير، وتعاون الفريق. عربي أولاً، مصمم للسوق المصري.',
-  metadataBase: new URL('https://stockflow.app'),
+  metadataBase: new URL('https://makhzanflow.app'),
   openGraph: {
-    siteName: 'StockFlow',
+    siteName: 'MakhzanFlow',
     locale: 'ar_EG',
     type: 'website',
   },

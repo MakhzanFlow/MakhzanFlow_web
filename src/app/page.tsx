@@ -10,8 +10,8 @@ import FaqAccordion from './FaqAccordion'
 import styles from './page.module.css'
 
 export const metadata: Metadata = {
-  title: 'StockFlow - نظام إدارة المخازن والتوزيع للمحلات والسوبر ماركت',
-  description: 'StockFlow هو نظام إدارة مخازن وتوزيع للمحلات والسوبر ماركت - فواتير، مخزون، ديون العملاء، تقارير، وتعاون الفريق. كل ده من جوالك وبالعربي.',
+  title: 'MakhzanFlow - نظام إدارة المخازن والتوزيع للمحلات والسوبر ماركت',
+  description: 'MakhzanFlow هو نظام إدارة مخازن وتوزيع للمحلات والسوبر ماركت - فواتير، مخزون، ديون العملاء، تقارير، وتعاون الفريق. كل ده من جوالك وبالعربي.',
 }
 
 const d = (value: string) => ({ '--d': value }) as CSSProperties
@@ -161,7 +161,7 @@ const testimonials = [
     color: 'g',
   },
   {
-    text: '"تتبع ديون العملاء كان أصعب حاجة عندي. مع StockFlow أعرف مين مديون ومين سدد من غير ما أسأل حد."',
+    text: '"تتبع ديون العملاء كان أصعب حاجة عندي. مع MakhzanFlow أعرف مين مديون ومين سدد من غير ما أسأل حد."',
     name: 'محمود عبدالله',
     role: 'موزع مواد غذائية القاهرة',
     initial: 'م',
@@ -331,7 +331,7 @@ export default function HomePage() {
             <div>
               <span className={`kicker ${styles.anim}`} style={d('.05s')}><span className="dot" />إدارة المخازن والتوزيع بالكامل من جوالك</span>
               <h1 className={styles.anim} style={d('.15s')}>حوّل جوالك إلى <span className={styles.hl}>غرفة عمليات</span> للمخزن</h1>
-              <p className={`${styles.lead} ${styles.anim}`} style={d('.25s')}>StockFlow يجمع الفواتير، المخزون، ديون العملاء، التقارير، وصلاحيات الفريق في تجربة عربية سريعة وواضحة. افتح التطبيق، شوف الصورة كاملة، واتخذ القرار قبل ما المشكلة تكبر.</p>
+              <p className={`${styles.lead} ${styles.anim}`} style={d('.25s')}>MakhzanFlow يجمع الفواتير، المخزون، ديون العملاء، التقارير، وصلاحيات الفريق في تجربة عربية سريعة وواضحة. افتح التطبيق، شوف الصورة كاملة، واتخذ القرار قبل ما المشكلة تكبر.</p>
               <div className={`${styles.heroCtas} ${styles.anim}`} style={d('.35s')}>
                 <Link href="/register" className="btn btn-primary">ابدأ مجاناً {icon('i-arrow')}</Link>
                 <a href="#how" className="btn btn-secondary">شوف طريقة الشغل</a>
@@ -352,7 +352,13 @@ export default function HomePage() {
                 <span className={`${styles.fIc} ${styles.o}`}>{icon('i-bell')}</span>
                 <div><b>تنبيه ذكي</b><small>المخزون قل — السكر 1 كجم وصل للحد الأدنى</small></div>
               </div>
-              <PhoneMockup />
+              <img
+                src="/assets/mockup-homescreen.svg"
+                alt="شاشة الرئيسية في MakhzanFlow"
+                className={styles.mockupImg}
+                width={320}
+                height={650}
+              />
               <div className={`${styles.float} ${styles.f2}`}>
                 <span className={`${styles.fIc} ${styles.g}`}>{icon('i-sync')}</span>
                 <div><b>آخر مزامنة</b><small>منذ 4 دقائق — كل الفواتير محفوظة ومتزامنة</small></div>
@@ -405,7 +411,13 @@ export default function HomePage() {
               <p>صفحتك الأولى بعد ما تسجل دخولك: أرقامك، رسوم المبيعات، وأحدث الفواتير كلها في شاشة واحدة.</p>
             </div>
             <div className={`${styles.preview} reveal`} style={d('.1s')}>
-              <PhonePreviewMockup />
+              <img
+                src="/assets/mockup-invoices.svg"
+                alt="شاشة الفواتير في MakhzanFlow"
+                className={styles.mockupImg}
+                width={340}
+                height={690}
+              />
             </div>
           </div>
         </section>
@@ -445,7 +457,7 @@ export default function HomePage() {
               <article className={`${styles.g2Card} reveal`}>
                 <div className={`${styles.g2Ic} ${styles.green}`}>{icon('i-layers')}</div>
                 <h3>تكاملات جاهزة</h3>
-                <p>شغّل StockFlow مع أدواتك اليومية — التكاملات جاهزة من غير برمجة.</p>
+                <p>شغّل MakhzanFlow مع أدواتك اليومية — التكاملات جاهزة من غير برمجة.</p>
                 <div className={styles.miniChips}>
                   {integrations.map((item) => (
                     <span key={item.label}>{icon(item.icon)} {item.label}</span>
@@ -470,7 +482,7 @@ export default function HomePage() {
         <section className={`section ${styles.diff}`}>
           <div className="container">
             <div className="sec-head reveal">
-              <span className="kicker"><span className="dot" />ليه StockFlow</span>
+              <span className="kicker"><span className="dot" />ليه MakhzanFlow</span>
               <h2>مش مجرد تطبيق مخازن — نظام متكامل</h2>
             </div>
             <div className={styles.diffGrid}>
@@ -510,7 +522,7 @@ export default function HomePage() {
           <div className="container">
             <div className="sec-head reveal">
               <span className="kicker"><span className="dot" />آراء العملاء</span>
-              <h2>بيقولوا إيه عن StockFlow</h2>
+              <h2>بيقولوا إيه عن MakhzanFlow</h2>
             </div>
             <div className={styles.tst}>
               {testimonials.map((t, i) => (
@@ -549,7 +561,7 @@ export default function HomePage() {
                 <Link href="/register" className="btn btn-primary">ابدأ مجاناً</Link>
                 <a
                   className="btn btn-secondary"
-                  href="https://play.google.com/store/apps/details?id=com.example.stockflow"
+                  href="https://play.google.com/store/apps/details?id=com.example.makhzanflow"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
