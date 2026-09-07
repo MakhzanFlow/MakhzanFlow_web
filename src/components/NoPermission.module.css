@@ -1,0 +1,148 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  gap: 14px;
+  max-width: 560px;
+  width: 100%;
+  margin: 32px auto;
+}
+
+.compact {
+  padding: 32px 24px;
+  margin: 16px auto;
+}
+
+.icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  background: var(--red-soft);
+  color: var(--red);
+  display: grid;
+  place-items: center;
+  margin-bottom: 4px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--fg);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 420px;
+  margin: 0;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-chip);
+  background: var(--red-soft);
+  color: var(--red);
+  font-size: 12.5px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 22px;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 6px 16px -6px rgba(15, 81, 50, 0.45);
+  transition: filter 0.15s;
+}
+
+.btnPrimary:hover {
+  filter: brightness(0.94);
+}
+
+.btnGhost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 22px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.btnGhost:hover {
+  border-color: rgba(15, 81, 50, 0.4);
+  background: rgba(15, 81, 50, 0.04);
+}
+
+.hint {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 4px;
+  line-height: 1.7;
+}
+
+.hint a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.hint a:hover {
+  text-decoration: underline;
+}
+
+/* inline variant for banners inside tables/modals */
+.inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--red-soft);
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.6;
+  border: 1px solid rgba(185, 28, 28, 0.12);
+}
+
+.inline svg {
+  flex: none;
+}
