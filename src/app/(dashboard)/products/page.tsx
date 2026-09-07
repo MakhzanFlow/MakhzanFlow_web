@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { apiClient } from '@/lib/api-client'
 import Icon from '@/components/Icon'
 import { useToast } from '@/components/Toast'
+import NoPermission, { InlineNoPermission } from '@/components/NoPermission'
 import type { Product } from '@/lib/types'
 import styles from '../dashboard/dashboard.module.css'
 
@@ -29,6 +30,8 @@ export default function ProductsPage() {
   const [page, setPage] = useState(1)
   const [pagination, setPagination] = useState({ total: 0, pages: 0 })
 
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [forbidden, setForbidden] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const [modalTitle, setModalTitle] = useState('منتج جديد')
   const [form, setForm] = useState<ProductForm>(emptyForm)
@@ -53,9 +56,15 @@ export default function ProductsPage() {
         if (res.success && res.data) {
           setProducts(res.data ?? [])
           setPagination(res.pagination ?? { total: 0, pages: 0 })
+          setForbidden(false)
         }
       })
-      .catch(() => { if (!cancelled) setError('Failed to load products') })
+      .catch((err: unknown) => {
+        if (cancelled) return
+        const e = err as { status?: number; isForbidden?: boolean; message?: string }
+        if (e.status === 403 || e.isForbidden) setForbidden(true)
+        else setError(e.message || 'Failed to load products')
+      })
       .finally(() => { if (!cancelled) setLoading(false) })
 
     return () => { cancelled = true }
@@ -69,6 +78,7 @@ export default function ProductsPage() {
   const openNew = () => {
     setForm(emptyForm)
     setEditingId(null)
+    setImageFile(null)
     setModalTitle('منتج جديد')
     setModalOpen(true)
   }
@@ -83,6 +93,7 @@ export default function ProductsPage() {
       minStock: String(p.min_stock),
     })
     setEditingId(p.id)
+    setImageFile(null)
     setModalTitle('تعديل المنتج')
     setModalOpen(true)
   }
@@ -91,6 +102,7 @@ export default function ProductsPage() {
     setModalOpen(false)
     setForm(emptyForm)
     setEditingId(null)
+    setImageFile(null)
     setError('')
   }
 
@@ -118,6 +130,17 @@ export default function ProductsPage() {
         if (data.data) {
           setProducts((prev) => prev.map((p) => (p.id === editingId ? { ...p, ...data.data } : p)))
         }
+        if (imageFile) {
+          const formData = new FormData()
+          formData.append('image', imageFile)
+          const image = await apiClient<{ image_url: string | null }>(`/products/${editingId}`, {
+            method: 'POST',
+            body: formData,
+          })
+          if (image.data?.image_url) {
+            setProducts((prev) => prev.map((p) => (p.id === editingId ? { ...p, image_url: image.data!.image_url } : p)))
+          }
+        }
         toast('تم تحديث المنتج بنجاح', 'success')
       } else {
         const data = await apiClient<Product>('/products', {
@@ -128,15 +151,29 @@ export default function ProductsPage() {
         if (data.data) {
           setProducts((prev) => [data.data!, ...prev])
         }
+        if (imageFile && data.data?.id) {
+          const formData = new FormData()
+          formData.append('image', imageFile)
+          const image = await apiClient<{ image_url: string | null }>(`/products/${data.data.id}`, {
+            method: 'POST',
+            body: formData,
+          })
+          if (image.data?.image_url) {
+            setProducts((prev) => prev.map((p) => (p.id === data.data!.id ? { ...p, image_url: image.data!.image_url } : p)))
+          }
+        }
         toast('تم إنشاء المنتج بنجاح', 'success')
       }
       closeModal()
     } catch (err: unknown) {
+      const e = err as { status?: number; isForbidden?: boolean; message?: string }
       const msg = err instanceof Error ? err.message : 'حدث خطأ'
+      const isForbidden = e.status === 403 || e.isForbidden || msg.includes('صلاحية') || msg.includes('permission') || msg.includes('Forbidden')
       if (msg.includes('already exists') || msg.includes('مكرر') || msg.includes('duplicate') || msg.includes('Duplicate')) {
         setError('المنتج موجود مسبقاً (SKU أو الباركود مكرر)')
-      } else if (msg.includes('permission') || msg.includes('Forbidden') || msg.includes('403')) {
+      } else if (isForbidden) {
         setError('لا تملك صلاحية للقيام بهذا الإجراء')
+        toast('ليس لديك صلاحية للقيام بهذا الإجراء', 'error')
       } else {
         setError(msg)
       }
@@ -188,26 +225,48 @@ export default function ProductsPage() {
       </header>
 
       <div className={styles.screenBody}>
-        <div className={styles.toolbar}>
-          <div className={styles.search}>
-            <Icon name="search" size={18} />
-            <input
-              type="search"
-              className={styles.searchInput}
-              placeholder="بحث عن منتج..."
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1) }}
-            />
-          </div>
-        </div>
+        {forbidden ? (
+          <NoPermission
+            requiredPermission="products.read"
+            title="ليس لديك صلاحية لعرض المنتجات"
+            description="تحتاج إلى صلاحية عرض المنتجات. تواصل مع مسؤول الشركة للحصول على الوصول."
+          />
+        ) : (
+          <>
+            <div className={styles.toolbar}>
+              <div className={styles.search}>
+                <Icon name="search" size={18} />
+                <input
+                  type="search"
+                  className={styles.searchInput}
+                  placeholder="بحث عن منتج..."
+                  value={search}
+                  onChange={(e) => { setSearch(e.target.value); setPage(1) }}
+                />
+              </div>
+              {!canCreate && (
+                <span style={{ fontSize: 12, color: 'var(--muted)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <Icon name="lock" size={14} /> ليس لديك صلاحية الإنشاء
+                </span>
+              )}
+            </div>
 
-        {loading && (
-          <div className={styles.loading}>
-            <div className={styles.spinner} />
-          </div>
-        )}
+            {loading && (
+              <div className={styles.loading}>
+                <div className={styles.spinner} />
+              </div>
+            )}
 
-        {!loading && error && <div className={styles.errorBox}>{error}</div>}
+            {!loading && error && (
+              <div>
+                <div className={styles.errorBox}>{error}</div>
+                {(error.includes('صلاحية') || error.includes('permission')) && (
+                  <div style={{ marginTop: 12 }}>
+                    <InlineNoPermission message={error} />
+                  </div>
+                )}
+              </div>
+            )}
 
         {!loading && !error && products.length === 0 && (
           <div className={`${styles.card} ${styles.emptyState}`}>
@@ -303,6 +362,8 @@ export default function ProductsPage() {
             )}
           </div>
         )}
+          </>
+        )}
       </div>
 
       {modalOpen && (
@@ -380,6 +441,14 @@ export default function ProductsPage() {
                     value={form.minStock}
                     onChange={(e) => setForm({ ...form, minStock: e.target.value })}
                     placeholder="٠"
+                  />
+                </div>
+                <div className={`${styles.field} ${styles.fieldFull}`}>
+                  <label>صورة المنتج</label>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
                   />
                 </div>
               </div>
