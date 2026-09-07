@@ -5,25 +5,30 @@ import { useAuth } from '@/contexts/AuthContext'
 import { apiClient } from '@/lib/api-client'
 import Icon from '@/components/Icon'
 import { useToast } from '@/components/Toast'
+import NoPermission from '@/components/NoPermission'
 import type { Payment, InvoiceListItem } from '@/lib/types'
 import styles from '../dashboard/dashboard.module.css'
 
 export default function PaymentsPage() {
-  const { companyId } = useAuth()
+  const { companyId, hasPermission } = useAuth()
   const { toast } = useToast()
   const [payments, setPayments] = useState<Payment[]>([])
   const [invoiceList, setInvoiceList] = useState<InvoiceListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [forbidden, setForbidden] = useState(false)
   const [typeFilter, setTypeFilter] = useState<'all' | 'received' | 'made'>('all')
   const [page, setPage] = useState(1)
   const [pagination, setPagination] = useState({ total: 0, pages: 0 })
+  const [reloadToken, setReloadToken] = useState(0)
 
   const [modalOpen, setModalOpen] = useState(false)
   const [payType, setPayType] = useState<'received' | 'made'>('received')
   const [amount, setAmount] = useState('')
   const [payInvoice, setPayInvoice] = useState('')
   const [notes, setNotes] = useState('')
+  const [saving, setSaving] = useState(false)
+  const canCreate = hasPermission('invoices.update')
 
   useEffect(() => {
     if (!companyId) return
@@ -46,6 +51,7 @@ export default function PaymentsPage() {
         if (cancelled) return
         if (res.success && res.data) {
           setInvoiceList(res.data ?? [])
+          setForbidden(false)
           const flat: Payment[] = []
           for (const inv of res.data ?? []) {
             for (const p of inv.payments ?? []) {
@@ -66,11 +72,16 @@ export default function PaymentsPage() {
           setPagination(res.pagination ?? { total: 0, pages: 0 })
         }
       })
-      .catch(() => { if (!cancelled) setError('Failed to load payments') })
+      .catch((err: unknown) => {
+        if (cancelled) return
+        const e = err as { status?: number; isForbidden?: boolean; message?: string }
+        if (e.status === 403 || e.isForbidden) setForbidden(true)
+        else setError(e.message || 'Failed to load payments')
+      })
       .finally(() => { if (!cancelled) setLoading(false) })
 
     return () => { cancelled = true }
-  }, [companyId, page, typeFilter])
+  }, [companyId, page, typeFilter, reloadToken])
 
   const openNew = () => {
     setPayType('received')
@@ -84,10 +95,38 @@ export default function PaymentsPage() {
     setModalOpen(false)
   }
 
-  const handleSave = (e: FormEvent) => {
+  const handleSave = async (e: FormEvent) => {
     e.preventDefault()
-    closeModal()
-    toast('تم الحفظ بنجاح', 'success')
+    if (payType === 'made') {
+      toast('تسجيل المدفوعات الخارجة غير متاح حاليا', 'error')
+      return
+    }
+
+    const parsedAmount = Number(amount.replace(',', '.'))
+    if (!payInvoice) {
+      toast('اختر الفاتورة أولا', 'error')
+      return
+    }
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      toast('أدخل مبلغا صحيحا أكبر من صفر', 'error')
+      return
+    }
+
+    setSaving(true)
+    try {
+      await apiClient(`/invoices/${payInvoice}/payments`, {
+        method: 'POST',
+        body: JSON.stringify({ amount: parsedAmount, method: 'cash', notes: notes || null }),
+      })
+      closeModal()
+      setReloadToken((value) => value + 1)
+      toast('تم حفظ الدفعة بنجاح', 'success')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'تعذر حفظ الدفعة'
+      toast(message, 'error')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const selectedInvoice = invoiceList.find((i) => i.id === payInvoice)
@@ -99,14 +138,24 @@ export default function PaymentsPage() {
           <h1>المدفوعات</h1>
           <p>المبالغ المستلمة والمدفوعة المرتبطة بفواتيرك</p>
         </div>
-        <button type="button" className={`${styles.btn} ${styles.btnPrimary}`} onClick={openNew}>
-          <Icon name="plus" size={18} />
-          دفعة جديدة
-        </button>
+        {canCreate && (
+          <button type="button" className={`${styles.btn} ${styles.btnPrimary}`} onClick={openNew}>
+            <Icon name="plus" size={18} />
+            دفعة جديدة
+          </button>
+        )}
       </header>
 
       <div className={styles.screenBody}>
-        <div className={styles.toolbar}>
+        {forbidden ? (
+          <NoPermission
+            requiredPermission="invoices.read"
+            title="ليس لديك صلاحية لعرض المدفوعات"
+            description="تحتاج إلى صلاحية عرض المدفوعات. تواصل مع مسؤول الشركة للحصول على الوصول."
+          />
+        ) : (
+          <>
+            <div className={styles.toolbar}>
           <div className={styles.tabGroup}>
             {(['all', 'received', 'made'] as const).map((t) => (
               <button
@@ -200,6 +249,8 @@ export default function PaymentsPage() {
             )}
           </div>
         )}
+          </>
+        )}
       </div>
 
       {modalOpen && (
@@ -276,8 +327,8 @@ export default function PaymentsPage() {
               <button type="button" className={`${styles.btn} ${styles.btnGhost}`} onClick={closeModal}>
                 إلغاء
               </button>
-              <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`}>
-                حفظ
+              <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`} disabled={saving}>
+                {saving ? 'جار الحفظ...' : 'حفظ'}
               </button>
             </footer>
           </form>
